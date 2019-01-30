@@ -1,2 +1,2 @@
 # irishub-load
-A simple to for IRIS hub load testing
+A simple tool for IRIS hub load testing
