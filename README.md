@@ -11,9 +11,9 @@ No.1  Create test accounts and send test-iris to these accounts
 
 No.2 Sign about tps*duration*60 TXs, to avoid Sequence Conflict we use 4 different accounts (wenxi silei jiacheng haoyang)
 
-1）./irishub-load signtx --config-dir=$HOME --tps=100 --duration=1 --account=wenxi
+./irishub-load signtx --config-dir=$HOME --tps=100 --duration=1 --account=wenxi
 
 
 No.3 Broadcast tps*interval TXs for every interval seconds
 
-1）./irishub-load broadcast --config-dir=$HOME --tps=50 --interval=5
+./irishub-load broadcast --config-dir=$HOME --tps=50 --interval=5
