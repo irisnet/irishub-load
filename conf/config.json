@@ -1,0 +1,33 @@
+{
+	"ChainId": "shilei-qa",
+	"Node":    "http://10.1.2.168:1317",
+	"Output":  "$HOME\\output",
+	"FaucetSeed":  "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
+	"MinBalance": "500000iris",
+	"SubFaucets": [
+		{
+			"faucet_name": "t1",
+			"faucet_password": "1234567890",
+			"faucet_addr": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
+			"seed": "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save"
+		},
+		{
+			"faucet_name": "t2",
+			"faucet_password": "1234567890",
+			"faucet_addr": "faa1e6et7mdl2z7ek5uxd6tg6jh6xegyp8zn9dgmt4",
+			"seed": "art forest winter fork dream birth craft shift hope direct return glide pass glimpse flush unfold return eye able cactus erode fatal clock stereo"
+		},
+		{
+			"faucet_name": "t3",
+			"faucet_password": "1234567890",
+			"faucet_addr": "faa1g2leswktj49r7krq5mzn6lp888zlr4xeltgz6h",
+			"seed": "test cotton rough luxury again board local hamster robot donkey final bid artefact write country arrange protect liar usage veteran antique salon region inherit"
+		},
+		{
+			"faucet_name": "t4",
+			"faucet_password": "1234567890",
+			"faucet_addr": "faa172w4exasa959gymaa3yc2ly574zjpgqakd6a3s",
+			"seed": "result collect pottery sight whisper horse noise now injury dune tobacco index brush wool final bind purpose exclude blame wire believe language work cinnamon"
+		}
+	]
+}
