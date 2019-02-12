@@ -16,3 +16,7 @@ This simple tool is used to execute stress test for irishub.
 ### No.3 Broadcast tps * interval TXs for every interval seconds
 
 ./irishub-load broadcast --config-dir=$HOME --tps=50 --interval=5
+
+## How to compile
+1) dep ensure -v
+2) go install
