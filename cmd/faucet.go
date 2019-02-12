@@ -2,20 +2,20 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/kaifei-bianjie/mock/conf"
-	"github.com/kaifei-bianjie/mock/util/constants"
-	"github.com/kaifei-bianjie/mock/util/helper"
-	"github.com/kaifei-bianjie/mock/util/helper/account"
-	"github.com/kaifei-bianjie/mock/util/helper/tx"
+	"github.com/irisnet/irishub-load/conf"
+	"github.com/irisnet/irishub-load/util/constants"
+	"github.com/irisnet/irishub-load/util/helper"
+	"github.com/irisnet/irishub-load/util/helper/account"
+	"github.com/irisnet/irishub-load/util/helper/tx"
 	"github.com/spf13/cobra"
 
-	"github.com/kaifei-bianjie/mock/types"
+	"github.com/irisnet/irishub-load/types"
 )
 
 func FaucetInit() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                    "init",
-		Example:                "mock init --config-dir=$HOME\\local",
+		Example:                "irishub-load init --config-dir=$HOME/local",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err         error

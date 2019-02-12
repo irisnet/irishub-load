@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/kaifei-bianjie/mock/types"
-	"github.com/kaifei-bianjie/mock/util/constants"
-	"github.com/kaifei-bianjie/mock/util/helper"
+	"github.com/irisnet/irishub-load/types"
+	"github.com/irisnet/irishub-load/util/constants"
+	"github.com/irisnet/irishub-load/util/helper"
 	"strings"
 	"strconv"
 )

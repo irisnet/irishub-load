@@ -3,8 +3,8 @@ package helper
 import (
 	"bufio"
 	"bytes"
-	"github.com/kaifei-bianjie/mock/conf"
-	"github.com/kaifei-bianjie/mock/util/constants"
+	"github.com/irisnet/irishub-load/conf"
+	"github.com/irisnet/irishub-load/util/constants"
 	"io/ioutil"
 	"net/http"
 	"os"

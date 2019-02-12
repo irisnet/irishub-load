@@ -8,21 +8,21 @@ import (
 	"github.com/irisnet/irishub/modules/bank"
 
 	sdk "github.com/irisnet/irishub/types"
-	"github.com/kaifei-bianjie/mock/util/constants"
-	"github.com/kaifei-bianjie/mock/util/helper"
-	"github.com/kaifei-bianjie/mock/types"
+	"github.com/irisnet/irishub-load/util/constants"
+	"github.com/irisnet/irishub-load/util/helper"
+	"github.com/irisnet/irishub-load/types"
 
 	"log"
 	"strings"
 	"strconv"
-	. "github.com/kaifei-bianjie/mock/conf"
+	. "github.com/irisnet/irishub-load/conf"
 
 
 	"github.com/tyler-smith/go-bip39"
 	"github.com/irisnet/irishub/crypto/keys/hd"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/kaifei-bianjie/mock/util/helper/account"
+	"github.com/irisnet/irishub-load/util/helper/account"
 	"encoding/json"
 	"errors"
 )

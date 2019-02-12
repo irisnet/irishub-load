@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/kaifei-bianjie/mock/conf"
-	"github.com/kaifei-bianjie/mock/sign"
-	"github.com/kaifei-bianjie/mock/util/helper"
-	"github.com/kaifei-bianjie/mock/types"
+	"github.com/irisnet/irishub-load/conf"
+	"github.com/irisnet/irishub-load/sign"
+	"github.com/irisnet/irishub-load/util/helper"
+	"github.com/irisnet/irishub-load/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -18,7 +18,7 @@ import (
 func SignTx() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signtx",
-		Example: "mock signtx --config-dir=$HOME\\local --tps=1 --duration=1 --account=wenxi",
+		Example: "irishub-load signtx --config-dir=$HOME/local --tps=1 --duration=1 --account=wenxi",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err                   error
@@ -60,7 +60,7 @@ func SignTx() *cobra.Command {
 
 			//把签名数据写入文件
 			conf.Output = helper.GetPath(conf.Output)
-			filePath := fmt.Sprintf("%v\\SignedTXs", conf.Output)
+			filePath := fmt.Sprintf("%v/SignedTXs", conf.Output)
 			if err = helper.CreateFolder(conf.Output) ; err != nil {
 				return err
 			}
@@ -86,7 +86,7 @@ func SignTx() *cobra.Command {
 func BroadcastTx() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "broadcast",
-		Example: "mock broadcast --config-dir=$HOME\\local --tps=1 --interval=5",
+		Example: "irishub-load broadcast --config-dir=$HOME/local --tps=1 --interval=5",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err                   error
@@ -104,7 +104,7 @@ func BroadcastTx() *cobra.Command {
 
 			TXsForOneBlock := tps * interval  //发完后还没有到达 commitInterval， 则等待
 
-			conf.Output = helper.GetPath(conf.Output+"\\SignedTXs")
+			conf.Output = helper.GetPath(conf.Output+"/SignedTXs")
 			file, err := os.OpenFile(conf.Output, os.O_RDONLY, 0)
 			if err != nil {
 				return fmt.Errorf("can't find directory in %v\n", conf.Output)

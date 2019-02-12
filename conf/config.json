@@ -1,7 +1,7 @@
 {
 	"ChainId": "shilei-qa",
-	"Node":    "http://10.1.2.168:1317",
-	"Output":  "$HOME\\output",
+	"Node":    "http://localhost:1317",
+	"Output":  "$HOME/output",
 	"FaucetSeed":  "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
 	"MinBalance": "500000iris",
 	"SubFaucets": [

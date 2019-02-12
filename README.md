@@ -1,39 +1,19 @@
-# Mock Test
+# irishub-load
 
-本项目旨在一次性生成多个已签名的数据，此生成过程可大致分为两步：
+This simple tool is used to execute stress test for irishub.
 
-1. 初始化一个大账户并使用该账户生成多个子账户，用于后续转账
-2. 批量生成账户并生成已签名的交易数据
+## How to use
 
-## Init mock faucet account
+No.1  Create test accounts and send test-iris to these accounts
+1) Copy config.json to $HOME (Set the parameters if necessary)
+2) **Command**
+ ./irishub-load init --config-dir=$HOME
 
+No.2 Sign about tps*duration*60 TXs, to avoid Sequence Conflict we use 4 different accounts (wenxi silei jiacheng haoyang)
 **Command**
+./irishub-load signtx --config-dir=$HOME --tps=100 --duration=1 --account=wenxi
 
-```bash
-mock faucet-init --faucet-name {faucet-name} --seed="recycle light kid ..." --sub-faucet-num {sub-faucet-num} --home {config-home} --chain-id {chain-id} --node {node}
-```
 
-**Parameters**
-
-- `faucet-name`：faucet name
-- `seed`：faucet seed
-- `sub-faucet-num`：num of sub faucet account
-- `home`：home for save config 
-- `chain-id`：chain id
-- `node`：lcd addr
-
-## Gen signed tx data
-
+No.3 Broadcast tps*interval TXs for every interval seconds
 **Command**
-
-```bash
-mock gen-signed-tx --num {num} --receiver {receiver-address} --home {config-home} --chain-id {chain-id} --node {node-url}
-```
-
-**Parameters**
-
-- `num`：num of signed tx which need generate
-- `receiver`：receiver address
-- `home`：home of config file
-- `chain-id`：chain id
-- `node`：lcd addr
+./irishub-load broadcast --config-dir=$HOME --tps=50 --interval=5

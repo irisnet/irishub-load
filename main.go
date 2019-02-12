@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/kaifei-bianjie/mock/cmd"
+	"github.com/irisnet/irishub-load/cmd"
 	"github.com/spf13/viper"
 )
 
@@ -29,7 +29,7 @@ func main() {
 
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "mock",
+		Use:   "irishub-load",
 		Short: "",
 	}
 
