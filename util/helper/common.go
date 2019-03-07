@@ -14,6 +14,11 @@ import (
 	"math/rand"
 	"time"
 	"github.com/spf13/viper"
+	"fmt"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/irisnet/irishub-load/types"
+
 )
 
 func CheckFileExist(filePath string) (bool, error) {
@@ -104,6 +109,70 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("MinBalance", &conf.MinBalance)
 	viper.UnmarshalKey("FaucetSeed", &conf.FaucetSeed)
 	viper.UnmarshalKey("SubFaucets", &conf.SubFaucets)
+
+	viper.UnmarshalKey("AirDropSeed", &conf.AirDropSeed)
+	viper.UnmarshalKey("AirDropGas", &conf.AirDropGas)
+	viper.UnmarshalKey("AirDropFee", &conf.AirDropFee)
+	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
+	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
+
+	return nil
+}
+
+/////////////////////////////////
+
+func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
+	//fmt.Println("ReadAddressList() !!!!")
+
+	var (
+		airdrop_list []types.AirDropInfo
+		airdrop_info types.AirDropInfo
+	)
+
+	xlsx, err := excelize.OpenFile(conf.AirDropXlsx)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil, err
+	}
+
+	rows := xlsx.GetRows("Sheet1")
+	for i, row := range rows {
+		for j, colCell := range row {
+			if j == 1 && i>=1 {
+				airdrop_info.Address = colCell
+				airdrop_info.Pos     = i+1
+				airdrop_list = append(airdrop_list, airdrop_info)
+			}
+		}
+	}
+
+	if err = SaveAddressList(xlsx); err != nil {
+		fmt.Println("SaveAddressList error !!!!")
+		return airdrop_list, xlsx, err
+	}
+
+	return airdrop_list,xlsx, nil
+}
+
+func WriteAddressList(xlsx *excelize.File, airDropinfo types.AirDropInfo) {
+	index := IntToStr(airDropinfo.Pos)
+	xlsx.SetCellValue("Sheet1", "G"+index, airDropinfo.Status)
+	xlsx.SetCellValue("Sheet1", "H"+index, airDropinfo.Hash)
+	xlsx.SetCellValue("Sheet1", "I"+index, airDropinfo.TransactionTime)
+	xlsx.SetCellValue("Sheet1", "J"+index, airDropinfo.Amount)
+}
+
+func IsCellEmpty(xlsx *excelize.File, airDropinfo types.AirDropInfo) bool {
+	index := IntToStr(airDropinfo.Pos)
+	return xlsx.GetCellValue("Sheet1", "G"+index) == ""
+}
+
+func SaveAddressList(xlsx *excelize.File) error{
+	err := xlsx.SaveAs(conf.AirDropXlsx)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
 	return nil
 }

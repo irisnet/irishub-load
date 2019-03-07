@@ -8,6 +8,7 @@ const (
 	UriKeyCreate     = "/keys"
 	UriAccountInfo   = "/auth/accounts/%v"           // format is /auth/accounts/{address}
 	UriTransfer      = "/bank/accounts/%s/transfers" // format is /bank/accounts/{address}/transfers
+	UriTxs           = "/txs?action=send&sender=%s&recipient=%s"
 	UriTxBroadcast   = "/tx/broadcast"
 
 	// http status code

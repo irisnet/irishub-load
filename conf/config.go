@@ -8,6 +8,12 @@ var (
 	FaucetSeed    string
 	MinBalance    string
 	SubFaucets    []SubFaucet
+
+	AirDropSeed   string
+	AirDropGas    string
+	AirDropFee    string
+	AirDropAmount string
+	AirDropXlsx   string
 )
 
 type SubFaucet struct {

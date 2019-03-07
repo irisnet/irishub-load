@@ -15,6 +15,7 @@ func main() {
 		cmd.FaucetInit(),
 		cmd.SignTx(),
 		cmd.BroadcastTx(),
+		cmd.AirDrop(),
 	)
 
 	//PreRun bind viper
