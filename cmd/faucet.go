@@ -26,15 +26,20 @@ func AirDrop() *cobra.Command {
 				faucet_add  string
 				airdrop_list []types.AirDropInfo
 				faucet_info types.AccountInfoRes
+				record_list  map[string]string
 			)
 			fmt.Println("Init AirDrop !!!!")
 			helper.ReadConfigFile(FlagConfDir)
+
+			fmt.Println("Read transfer Record !!!!")
+			if record_list, err = helper.ReadRecord(); err != nil {
+				return err
+			}
+
 			if airdrop_list, xlsx, err = helper.ReadAddressList(FlagConfDir); err != nil {
 				fmt.Println("ReadAddressList error !!!!")
 				return err
 			}
-
-			//check: fmt.Println(airdrop_list)
 
 			faucet_name = "faucet_" + helper.RandomId()
 			fmt.Printf("No.1  Create new faucet account : %s \n", faucet_name)
@@ -43,8 +48,6 @@ func AirDrop() *cobra.Command {
 				fmt.Println("CreateAccount error !!!!")
 				return err
 			}
-
-			//check: fmt.Println(faucet_add)
 
 			if faucet_info, err = account.GetAccountInfo(faucet_add); err != nil {
 				fmt.Println("GetAccountInfo error !!!!")
@@ -78,72 +81,71 @@ func AirDrop() *cobra.Command {
 			fmt.Printf("No.3  faucetBalance : %f \n", faucetBalance)
 
 			fmt.Printf("No.4  Transfer balance : %s to  accounts \n",conf.AirDropAmount)
-			var stop = false  // 连续两次转账失败，保存结果退出
-			for _, sub := range airdrop_list{
-				if !helper.IsCellEmpty(xlsx, sub){
-					index := helper.IntToStr(sub.Pos)
+			for i, _ := range airdrop_list{
+				if !helper.IsCellEmpty(xlsx, airdrop_list[i]){
+					index := helper.IntToStr(airdrop_list[i].Pos)
 					fmt.Println("G"+index+" is not empty!")
 					continue
 				}
 
-				//判断是否已经转账过 ,sub.Status = "Duplicated"
-				if duplicated, err := tx.ChechTx(req.Sender, sub.Address); err == nil {
-					if duplicated {
-						fmt.Println("Duplicated transfer : "+req.Sender+" to "+sub.Address)
-						sub.Status = "Duplicated"
-						sub.Hash = ""
-						sub.TransactionTime = ""
-						sub.Amount = ""
-						helper.WriteAddressList(xlsx, sub)
-						continue
-					}
-				}else {
-					fmt.Println(err.Error())
-					break
+				//查重
+				if (record_list[airdrop_list[i].Address] != "") {
+					fmt.Println("Duplicated transfer : "+req.Sender+" to "+airdrop_list[i].Address)
+					airdrop_list[i].Status = "Duplicated"
+					airdrop_list[i].Hash = ""
+					airdrop_list[i].TransactionTime = ""
+					airdrop_list[i].Amount = ""
+					helper.WriteAddressList(xlsx, airdrop_list[i])
+					continue
 				}
 
 				//转账最小测试金额
-				if txRes, err := tx.SendTx(req, sub.Address); err != nil {
+				if txRes, err := tx.SendTx(req, airdrop_list[i].Address, false); err != nil {
 					fmt.Println(err.Error())
 
-					sub.Status = "TimeOut/Error"
-					sub.Hash = err.Error()
-					sub.TransactionTime = ""
-					sub.Amount = ""
-					helper.WriteAddressList(xlsx, sub)
+					airdrop_list[i].Status = "Error"
+					airdrop_list[i].Hash = err.Error()
+					airdrop_list[i].TransactionTime = ""
+					airdrop_list[i].Amount = ""
+					helper.WriteAddressList(xlsx, airdrop_list[i])
 
-					if stop {
-						fmt.Println("Continuous transfer failure,  break!")
-						break
-					}
-
-					fmt.Println("Some error happened , sleep 10 seconds")
-					time.Sleep(time.Duration(10)*time.Second)
-
-					if faucet_info, err = account.GetAccountInfo(faucet_add); err != nil {
-						fmt.Println("GetAccountInfo error !!!!")
-						break
-					}
-					sequence, _ = helper.StrToInt(faucet_info.Sequence)
-					req.BaseTx.Sequence = faucet_info.Sequence
-
-					stop = true
-					continue
+					break
 				} else {
-					stop = false
 					sequence++
 					req.BaseTx.Sequence = helper.IntToStr(sequence)
-					sub.Status = "Succeed"
-					sub.Hash = txRes.Hash
-					sub.TransactionTime = time.Now().UTC().Format(time.UnixDate)
-					sub.Amount = conf.AirDropAmount
+					airdrop_list[i].Status = ""
+					airdrop_list[i].Hash = txRes.Hash
+					airdrop_list[i].TransactionTime = time.Now().UTC().Format(time.UnixDate)
+					airdrop_list[i].Amount = conf.AirDropAmount
 
-					helper.WriteAddressList(xlsx, sub)
+					helper.WriteAddressList(xlsx, airdrop_list[i])
+					time.Sleep(time.Duration(1)*time.Second)
 				}
 			}
 
-			if err = helper.SaveAddressList(xlsx); err != nil {
-				fmt.Println("SaveAddressList error !!!!")
+			fmt.Println("-------------\nSend TX ok, wait 15 seconds for Check TX !\n-------------")
+			time.Sleep(time.Duration(15)*time.Second)
+
+			fmt.Println("No.5  Check if TX succeeed \n")
+			for _, sub := range airdrop_list{
+				if sub.Status != "" || sub.Hash == ""{
+					continue
+				}
+
+				if  err := tx.ChechTx(sub.Hash); err != nil {
+					fmt.Println("Check TX Error : "+sub.Address+" "+ sub.Hash)
+					sub.Status = "CheckTXError"
+				}else{
+					fmt.Println(sub.Address+" "+ sub.Hash + " Check TX OK !!")
+					sub.Status = "Succeed"
+				}
+
+				helper.WriteAddressList(xlsx, sub)
+			}
+
+			if err = helper.SaveAddressList(xlsx, conf.AirDropXlsx); err != nil {
+				fmt.Println("SaveAddressList error !!!! Save result to tempfile!!")
+				helper.SaveAddressList(xlsx, conf.AirDropXlsxTemp)
 				return err
 			}
 
@@ -221,7 +223,7 @@ func FaucetInit() *cobra.Command {
 				}
 
 				//转账最小测试金额
-				if msg, err := tx.SendTx(req, subFaucet.FaucetAddr); err != nil {
+				if msg, err := tx.SendTx(req, subFaucet.FaucetAddr, true); err != nil {
 					fmt.Println(msg)
 					return err
 				} else {

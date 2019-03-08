@@ -18,7 +18,6 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/irisnet/irishub-load/types"
-
 )
 
 func CheckFileExist(filePath string) (bool, error) {
@@ -115,11 +114,46 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("AirDropFee", &conf.AirDropFee)
 	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
 	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
+	viper.UnmarshalKey("AirDropXlsxTemp", &conf.AirDropXlsxTemp)
+	viper.UnmarshalKey("AirDropRecord", &conf.AirDropRecord)
 
 	return nil
 }
 
 /////////////////////////////////
+func ReadRecord()(map[string]string, error) {
+	file, err := os.OpenFile(conf.AirDropRecord, os.O_RDONLY, 0)
+	if err != nil {
+		return nil, fmt.Errorf("can't find directory in %v\n", conf.Output)
+	}
+	defer file.Close()
+	sc := bufio.NewScanner(file)
+
+	var record_list = map[string]string{} //map速度快,一定要初始化
+	for sc.Scan() { //sc.Scan()默认以 \n 分隔
+		record_list[sc.Text()] = "bingo"
+	}
+
+	if err := sc.Err(); err != nil{
+		fmt.Println("An error has happened, when we run buf scanner")
+		return nil, err
+	}
+
+	return record_list, nil
+}
+
+func SaveRecord(record_list map[string]string) error {
+	var record_array []string
+	for k, v := range record_list {
+		record_array = append(record_array, k+":"+v)
+	}
+
+	if err := WriteFile(conf.AirDropRecord, []byte(strings.Join(record_array, "\n"))); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 	//fmt.Println("ReadAddressList() !!!!")
@@ -146,11 +180,6 @@ func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 		}
 	}
 
-	if err = SaveAddressList(xlsx); err != nil {
-		fmt.Println("SaveAddressList error !!!!")
-		return airdrop_list, xlsx, err
-	}
-
 	return airdrop_list,xlsx, nil
 }
 
@@ -167,8 +196,8 @@ func IsCellEmpty(xlsx *excelize.File, airDropinfo types.AirDropInfo) bool {
 	return xlsx.GetCellValue("Sheet1", "G"+index) == ""
 }
 
-func SaveAddressList(xlsx *excelize.File) error{
-	err := xlsx.SaveAs(conf.AirDropXlsx)
+func SaveAddressList(xlsx *excelize.File, file string) error{
+	err := xlsx.SaveAs(file)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -178,6 +207,7 @@ func SaveAddressList(xlsx *excelize.File) error{
 }
 
 /////////////////////////////////
+
 
 func HttpClientPostJsonData(uri string, requestBody *bytes.Buffer) (int, []byte, error) {
 	url := conf.NodeUrl + uri
