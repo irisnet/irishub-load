@@ -67,7 +67,7 @@ func AirDrop() *cobra.Command {
 					Sequence:         helper.IntToStr(sequence),
 					Gas:              conf.AirDropGas,
 					Fees:             conf.AirDropFee,
-					Memo:             fmt.Sprintf("transfer airdrop token : 20iris"),
+					Memo:            "transfer airdrop token : 20iris",
 				},
 			}
 
@@ -99,7 +99,7 @@ func AirDrop() *cobra.Command {
 					continue
 				}
 
-				//转账最小测试金额
+				//转账
 				if txRes, err := tx.SendTx(req, airdrop_list[i].Address, false); err != nil {
 					fmt.Println(err.Error())
 
