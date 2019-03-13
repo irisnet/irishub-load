@@ -39,7 +39,6 @@ func SendTx(req types.TransferTxReq, dstAddress string, sync bool) (types.Transf
 
 	//fmt.Println(string(resBytes))
 	if statusCode == constants.StatusCodeOk {
-		fmt.Printf("Send %s to %s ok! \n",req.Amount,dstAddress)
 		if err := json.Unmarshal(resBytes, &transferTxInfo); err != nil {
 			return transferTxInfo, err
 		}

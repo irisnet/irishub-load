@@ -13,6 +13,7 @@ var (
 	AirDropGas    string
 	AirDropFee    string
 	AirDropAmount string
+	AirDropRandom bool
 	AirDropXlsx   string
 	AirDropXlsxTemp   string
 	AirDropRecord   string

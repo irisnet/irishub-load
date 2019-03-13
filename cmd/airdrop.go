@@ -67,7 +67,7 @@ func AirDrop() *cobra.Command {
 					Sequence:         helper.IntToStr(sequence),
 					Gas:              conf.AirDropGas,
 					Fees:             conf.AirDropFee,
-					Memo:            "transfer airdrop token : 20iris",
+					Memo:            "airdrop token",
 				},
 			}
 
@@ -99,6 +99,13 @@ func AirDrop() *cobra.Command {
 					continue
 				}
 
+				//随机金额
+				if conf.AirDropRandom {
+					if req.Amount, err = account.RandomCoin(conf.AirDropAmount); err != nil {
+						return err
+					}
+				}
+
 				//转账
 				if txRes, err := tx.SendTx(req, airdrop_list[i].Address, false); err != nil {
 					fmt.Println(err.Error())
@@ -111,12 +118,14 @@ func AirDrop() *cobra.Command {
 
 					break
 				} else {
+					fmt.Printf("(%d) Send %s to %s ok! \n", i+1,req.Amount, airdrop_list[i].Address)
+
 					sequence++
 					req.BaseTx.Sequence = helper.IntToStr(sequence)
 					airdrop_list[i].Status = ""
 					airdrop_list[i].Hash = txRes.Hash
 					airdrop_list[i].TransactionTime = time.Now().UTC().Format(time.UnixDate)
-					airdrop_list[i].Amount = conf.AirDropAmount
+					airdrop_list[i].Amount = req.Amount
 
 					helper.WriteAddressList(xlsx, airdrop_list[i])
 					time.Sleep(time.Duration(1)*time.Second)

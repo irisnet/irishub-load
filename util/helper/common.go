@@ -77,7 +77,7 @@ func StrToInt(amt string) (int, error) {
 
 func RandomId() string{
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	return strconv.Itoa(r.Intn(89999)+10000)
+	return strconv.Itoa(r.Intn(899999)+100000)
 }
 
 func PraseUser(name string) int {
@@ -113,6 +113,7 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("AirDropGas", &conf.AirDropGas)
 	viper.UnmarshalKey("AirDropFee", &conf.AirDropFee)
 	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
+	viper.UnmarshalKey("AirDropRandom", &conf.AirDropRandom)
 	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
 	viper.UnmarshalKey("AirDropXlsxTemp", &conf.AirDropXlsxTemp)
 	viper.UnmarshalKey("AirDropRecord", &conf.AirDropRecord)
