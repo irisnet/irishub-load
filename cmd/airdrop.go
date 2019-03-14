@@ -141,7 +141,7 @@ func AirDrop() *cobra.Command {
 					continue
 				}
 
-				if  err := tx.ChechTx(sub.Hash); err != nil {
+				if  err := tx.CheckTx(sub.Hash); err != nil {
 					fmt.Println("Check TX Error : "+sub.Address+" "+ sub.Hash)
 					sub.Status = "CheckTXError"
 				}else{

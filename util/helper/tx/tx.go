@@ -49,7 +49,7 @@ func SendTx(req types.TransferTxReq, dstAddress string, sync bool) (types.Transf
 	}
 }
 
-func ChechTx(tx string) error {
+func CheckTx(tx string) error {
 	uri := fmt.Sprintf(constants.UriTxs, tx)
 	statusCode, resByte, err := helper.HttpClientGetData(uri)
 
@@ -58,7 +58,7 @@ func ChechTx(tx string) error {
 	}
 
 	if statusCode == constants.StatusCodeOk {
-		if strings.Contains(string(resByte), "hash"){
+		if strings.Contains(string(resByte), "hash") && !strings.Contains(string(resByte), "failed") {
 			return  nil
 		}
 
