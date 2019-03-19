@@ -128,7 +128,7 @@ func AirDrop() *cobra.Command {
 					airdrop_list[i].Amount = req.Amount
 
 					helper.WriteAddressList(xlsx, airdrop_list[i])
-					time.Sleep(time.Duration(1)*time.Second)
+					time.Sleep(time.Duration(100)*time.Millisecond)
 				}
 			}
 
