@@ -70,7 +70,6 @@ func SeedTest() *cobra.Command {
 				}
 			}
 
-
 			fmt.Println("total error number : ", error_count)
 			return nil
 		},
@@ -102,7 +101,6 @@ func CompareData(inputInfo InputAccountInfo, seedInfo SeedAccountInfo) error {
 
 	return nil
 }
-
 
 func GetAccountInfoFromSeed(mnemonic string) (SeedAccountInfo, error) {
 	var account SeedAccountInfo
