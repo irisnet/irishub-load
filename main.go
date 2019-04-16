@@ -16,6 +16,7 @@ func main() {
 		cmd.SignTx(),
 		cmd.BroadcastTx(),
 		cmd.AirDrop(),
+		cmd.SeedTest(),
 	)
 
 	//PreRun bind viper
