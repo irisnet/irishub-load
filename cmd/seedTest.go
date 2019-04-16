@@ -54,9 +54,6 @@ func SeedTest() *cobra.Command {
 				seedInfo			  SeedAccountInfo
 			)
 
-			helper.ReadConfigFile(FlagConfDir)
-
-
 			file, err := os.OpenFile("D:/seedtest.txt", os.O_RDONLY, 0)
 			if err != nil {
 				return fmt.Errorf("can't find directory in %v\n", conf.Output)
@@ -95,9 +92,6 @@ func SeedTest() *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().AddFlagSet(seedtestFlagSet)
-	cmd.MarkFlagRequired(FlagConfDir)
 
 	return cmd
 }
