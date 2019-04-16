@@ -1,26 +1,14 @@
 package cmd
 
 import (
-//	"github.com/irisnet/irishub-load/conf"
-//	"github.com/irisnet/irishub-load/sign"
-//	"github.com/irisnet/irishub-load/util/helper"
-//	"github.com/irisnet/irishub-load/types"
 	"github.com/spf13/cobra"
-//	"github.com/spf13/viper"
-//	"log"
-	//"strings"
-
 	"github.com/irisnet/irishub-load/util/helper"
-	"fmt"
-
 	"github.com/tyler-smith/go-bip39"
 	"github.com/irisnet/irishub/crypto/keys/hd"
-	//"github.com/tendermint/tendermint/crypto/secp256k1"
-
-	"encoding/hex"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"strings"
-	"github.com/irisnet/irishub-load/conf"
+	"encoding/hex"
+	"fmt"
 	"os"
 	"bufio"
 	"encoding/json"
@@ -44,10 +32,8 @@ type InputAccountInfo struct {
 func SeedTest() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "seedtest",
-		Example: "irishub-load seedtest --config-dir=$HOME/local",
+		Example: "irishub-load seedtest",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			fmt.Println("start \n")
-
 			var (
 				err                   error
 				inputInfo             InputAccountInfo
@@ -56,11 +42,10 @@ func SeedTest() *cobra.Command {
 
 			file, err := os.OpenFile("D:/seedtest.txt", os.O_RDONLY, 0)
 			if err != nil {
-				return fmt.Errorf("can't find directory in %v\n", conf.Output)
+				return fmt.Errorf("can't find seedtest directory in %v\n")
 			}
 			defer file.Close()
 			sc := bufio.NewScanner(file)
-
 
 			fmt.Println("Start reading seed ....")
 
@@ -73,22 +58,20 @@ func SeedTest() *cobra.Command {
 					return fmt.Errorf("can't prase input json\n %s",err.Error())
 				}
 
-				//读取私钥信息
 				if seedInfo, err = GetAccountInfoFromSeed(inputInfo.Secret); err!=nil {
-					return fmt.Errorf("Get private info error : %s", err.Error())
-				}
-
-				if  err = Comparedata(inputInfo, seedInfo); err!=nil {
-					//return fmt.Errorf("Result not equal : %s", err.Error())
-					error_count++
+					return fmt.Errorf("Get seedInfo info error : %s", err.Error())
 				}
 
 				count++
-				fmt.Println("Compare " , count , " seeds ok!")
+				fmt.Println("Compare " , count , " seeds!")
+				if  err = CompareData(inputInfo, seedInfo); err!=nil {
+					//return fmt.Errorf("Result not equal : %s", err.Error())
+					error_count++
+				}
 			}
 
 
-			fmt.Println("total errors " , error_count)
+			fmt.Println("total error number : ", error_count)
 			return nil
 		},
 	}
@@ -96,12 +79,15 @@ func SeedTest() *cobra.Command {
 	return cmd
 }
 
-func Comparedata(inputInfo InputAccountInfo, seedInfo SeedAccountInfo) error {
+func CompareData(inputInfo InputAccountInfo, seedInfo SeedAccountInfo) error {
 	if inputInfo.PriveteKeyLen == 31 {
 		inputInfo.PrivateKey = "00"+inputInfo.PrivateKey
+	} else if inputInfo.PriveteKeyLen == 30 {
+		inputInfo.PrivateKey = "0000"+inputInfo.PrivateKey
 	}
 
 	if inputInfo.PrivateKey != seedInfo.PrivateKey {
+		fmt.Println(inputInfo.Secret)
 		fmt.Println(inputInfo.PrivateKey , " != " , seedInfo.PrivateKey)
 		return errors.New("PrivateKey not equal")
 	}
@@ -134,7 +120,7 @@ func GetAccountInfoFromSeed(mnemonic string) (SeedAccountInfo, error) {
 
 	account.PrivateKey = strings.ToUpper(hex.EncodeToString(derivedPriv[:]))
 	account.PubKey = helper.ConvertFromHex("fap", hex.EncodeToString(pubk.Bytes()))
-	account.Addr = helper.ConvertFromHex("faa", pubk.Address().String()) //pubk.Address().String()
+	account.Addr = helper.ConvertFromHex("faa", pubk.Address().String())
 
 	return account, err
 }
