@@ -22,9 +22,8 @@ type SeedAccountInfo struct {
 }
 
 type InputAccountInfo struct {
-	PriveteKeyLen  int         `json:"priveteKeyLen"`
-	Secret         string      `json:"secret"`
 	Address        string      `json:"address"`
+	Secret         string      `json:"phrase"`
 	PrivateKey     string      `json:"privateKey"`
 	PublicKey      string      `json:"publicKey"`
 }
@@ -79,12 +78,6 @@ func SeedTest() *cobra.Command {
 }
 
 func CompareData(inputInfo InputAccountInfo, seedInfo SeedAccountInfo) error {
-	if inputInfo.PriveteKeyLen == 31 {
-		inputInfo.PrivateKey = "00"+inputInfo.PrivateKey
-	} else if inputInfo.PriveteKeyLen == 30 {
-		inputInfo.PrivateKey = "0000"+inputInfo.PrivateKey
-	}
-
 	if inputInfo.PrivateKey != seedInfo.PrivateKey {
 		fmt.Println(inputInfo.Secret)
 		fmt.Println(inputInfo.PrivateKey , " != " , seedInfo.PrivateKey)
