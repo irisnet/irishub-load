@@ -14,6 +14,10 @@ import (
 	"math/rand"
 	"time"
 	"github.com/spf13/viper"
+	"fmt"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/irisnet/irishub-load/types"
 )
 
 func CheckFileExist(filePath string) (bool, error) {
@@ -73,7 +77,7 @@ func StrToInt(amt string) (int, error) {
 
 func RandomId() string{
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	return strconv.Itoa(r.Intn(89999)+10000)
+	return strconv.Itoa(r.Intn(899999)+100000)
 }
 
 func PraseUser(name string) int {
@@ -105,10 +109,106 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("FaucetSeed", &conf.FaucetSeed)
 	viper.UnmarshalKey("SubFaucets", &conf.SubFaucets)
 
+	viper.UnmarshalKey("AirDropSeed", &conf.AirDropSeed)
+	viper.UnmarshalKey("AirDropGas", &conf.AirDropGas)
+	viper.UnmarshalKey("AirDropFee", &conf.AirDropFee)
+	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
+	viper.UnmarshalKey("AirDropRandom", &conf.AirDropRandom)
+	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
+	viper.UnmarshalKey("AirDropXlsxTemp", &conf.AirDropXlsxTemp)
+	viper.UnmarshalKey("AirDropRecord", &conf.AirDropRecord)
+
 	return nil
 }
 
 /////////////////////////////////
+func ReadRecord()(map[string]string, error) {
+	file, err := os.OpenFile(conf.AirDropRecord, os.O_RDONLY, 0)
+	if err != nil {
+		return nil, fmt.Errorf("can't find directory in %v\n", conf.Output)
+	}
+	defer file.Close()
+	sc := bufio.NewScanner(file)
+
+	var record_list = map[string]string{} //map速度快,一定要初始化
+	for sc.Scan() { //sc.Scan()默认以 \n 分隔
+		record_list[sc.Text()] = "bingo"
+	}
+
+	if err := sc.Err(); err != nil{
+		fmt.Println("An error has happened, when we run buf scanner")
+		return nil, err
+	}
+
+	return record_list, nil
+}
+
+func SaveRecord(record_list map[string]string) error {
+	var record_array []string
+	for k, v := range record_list {
+		record_array = append(record_array, k+":"+v)
+	}
+
+	if err := WriteFile(conf.AirDropRecord, []byte(strings.Join(record_array, "\n"))); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
+	//fmt.Println("ReadAddressList() !!!!")
+
+	var (
+		airdrop_list []types.AirDropInfo
+		airdrop_info types.AirDropInfo
+	)
+
+	xlsx, err := excelize.OpenFile(conf.AirDropXlsx)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil, err
+	}
+
+	rows := xlsx.GetRows("Sheet1")
+	for i, row := range rows {
+		for j, colCell := range row {
+			if j == 1 && i>=1 {
+				airdrop_info.Address = colCell
+				airdrop_info.Pos     = i+1
+				airdrop_list = append(airdrop_list, airdrop_info)
+			}
+		}
+	}
+
+	return airdrop_list,xlsx, nil
+}
+
+func WriteAddressList(xlsx *excelize.File, airDropinfo types.AirDropInfo) {
+	index := IntToStr(airDropinfo.Pos)
+	xlsx.SetCellValue("Sheet1", "G"+index, airDropinfo.Status)
+	xlsx.SetCellValue("Sheet1", "H"+index, airDropinfo.Hash)
+	xlsx.SetCellValue("Sheet1", "I"+index, airDropinfo.TransactionTime)
+	xlsx.SetCellValue("Sheet1", "J"+index, airDropinfo.Amount)
+}
+
+func IsCellEmpty(xlsx *excelize.File, airDropinfo types.AirDropInfo) bool {
+	index := IntToStr(airDropinfo.Pos)
+	return xlsx.GetCellValue("Sheet1", "G"+index) == ""
+}
+
+func SaveAddressList(xlsx *excelize.File, file string) error{
+	err := xlsx.SaveAs(file)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+/////////////////////////////////
+
 
 func HttpClientPostJsonData(uri string, requestBody *bytes.Buffer) (int, []byte, error) {
 	url := conf.NodeUrl + uri

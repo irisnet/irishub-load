@@ -30,4 +30,5 @@ func init() {
 	broadcastTXFlagSet.String(FlagConfDir, "", "directory of config file")
 	broadcastTXFlagSet.Int(FlagTps, 0, "max tps per second")
 	broadcastTXFlagSet.Int(FlagInterval, 0, "block commit time in config")
+
 }

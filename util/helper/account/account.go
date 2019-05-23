@@ -83,3 +83,13 @@ func ParseCoins(coin string) (float64, error) {
 	}
 	return amtFloat, nil
 }
+
+
+func RandomCoin(base string)(string, error){
+	if strings.Contains(base, ".") {
+		return "", fmt.Errorf("RandomCoin error!")
+	}
+	amtStr := strings.Replace(base, constants.Denom, "."+helper.RandomId()+constants.Denom, -1)
+
+	return amtStr,nil
+}

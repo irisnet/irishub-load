@@ -25,11 +25,50 @@ type AccountInfoRes struct {
 
 ////////////////////////////////////////////////////
 
+type AirDropInfo struct {
+	Pos                   int
+	Address               string
+	Status                string
+	Hash                  string
+	TransactionTime       string
+	Amount                string
+}
+
+////////////////////////////////////////////////////
+
+type TransferTxRes struct {
+	Check_tx   CheckTx `json:"check_tx"`
+	Deliver_tx DeliverTx `json:"deliver_tx"`
+	Hash       string `json:"hash"`
+	Height     string `json:"height"`
+}
+
+type CheckTx struct {
+	GasWanted string `json:"gasWanted"`
+	GasUsed   string `json:"gasUsed"`
+}
+
+type DeliverTx struct {
+	Log         string `json:"log"`
+	GasWanted   string `json:"gasWanted"`
+	GasUsed    string `json:"gasUsed"`
+	Tags       []Tag `json:"tags"`
+}
+
+type Tag struct {
+	Key         string `json:"key"`
+	Value      string `json:"value"`
+}
+
+
+////////////////////////////////////////////////////
+
 type TransferTxReq struct {
 	Amount string `json:"amount"`
 	Sender string `json:"sender"`
 	BaseTx BaseTx `json:"base_tx"`
 }
+
 
 
 type BaseTx struct {

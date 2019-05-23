@@ -75,7 +75,7 @@ func FaucetInit() *cobra.Command {
 				}
 
 				//转账最小测试金额
-				if msg, err := tx.SendTx(req, subFaucet.FaucetAddr); err != nil {
+				if msg, err := tx.SendTx(req, subFaucet.FaucetAddr, true); err != nil {
 					fmt.Println(msg)
 					return err
 				} else {
