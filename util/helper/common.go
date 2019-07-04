@@ -170,7 +170,7 @@ func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 		return nil, nil, err
 	}
 
-	rows := xlsx.GetRows("Sheet1")
+	rows,_  := xlsx.GetRows("Sheet1")
 	for i, row := range rows {
 		for j, colCell := range row {
 			if j == 1 && i>=1 {
@@ -194,7 +194,8 @@ func WriteAddressList(xlsx *excelize.File, airDropinfo types.AirDropInfo) {
 
 func IsCellEmpty(xlsx *excelize.File, airDropinfo types.AirDropInfo) bool {
 	index := IntToStr(airDropinfo.Pos)
-	return xlsx.GetCellValue("Sheet1", "G"+index) == ""
+	result, _ := xlsx.GetCellValue("Sheet1", "G"+index)
+	return  result == ""
 }
 
 func SaveAddressList(xlsx *excelize.File, file string) error{
