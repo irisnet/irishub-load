@@ -12,9 +12,14 @@ func main() {
 
 	//添加回调函数
 	rootCmd.AddCommand(
+
+		//压力测试
+		//1)创建账户 2）签名交易 3）广播交易
 		cmd.FaucetInit(),
 		cmd.SignTx(),
 		cmd.BroadcastTx(),
+
+		//其他feature，和压测无关
 		cmd.AirDrop(),
 		cmd.SeedTest(),
 	)
@@ -43,7 +48,6 @@ func prepareMainCmd(cmd *cobra.Command) *cobra.Command {
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		return bindFlagsLoadViper(cmd)
 	}
-
 
 	return cmd
 }

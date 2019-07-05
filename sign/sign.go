@@ -77,11 +77,11 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 	pubk := secp256k1.PrivKeySecp256k1(derivedPriv).PubKey()
 
 	acc, err := account.GetAccountInfo(fromAddr)
-	sequence, err := strconv.Atoi(acc.Sequence)
+	sequence, err := strconv.Atoi(acc.Value.Sequence)
 	if err != nil {
 		return Account, err
 	}
-	accountNumber, err := strconv.Atoi(acc.AccountNumber)
+	accountNumber, err := strconv.Atoi(acc.Value.AccountNumber)
 	if err != nil {
 		return Account, err
 	}

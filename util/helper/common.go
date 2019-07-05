@@ -6,12 +6,14 @@ import (
 	"github.com/irisnet/irishub-load/conf"
 	"github.com/irisnet/irishub-load/util/constants"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
 	"runtime"
 	"strings"
 	"math/rand"
+	"math/big"
 	"time"
 	"github.com/spf13/viper"
 	"fmt"
@@ -97,9 +99,10 @@ func PraseUser(name string) int {
 
 func ReadConfigFile(dir string) error{
 	confDir := viper.GetString(dir)
-	viper.SetConfigName("config")
-	viper.AddConfigPath(confDir)
+	viper.SetConfigName("config")  // config.json
+	viper.AddConfigPath(confDir)      // $HOME
 	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println(err.Error())
 		return err
 	}
 	viper.UnmarshalKey("Node", &conf.NodeUrl)
@@ -268,4 +271,15 @@ func UserHomeDir() string {
 		return home
 	}
 	return os.Getenv("HOME")
+}
+
+/////////////////////////////////
+
+func IrisattoToIris(in string) string{
+	m := big.NewInt(math.MaxInt64)
+	n,_ := new(big.Int).SetString(in, 10)
+	decimal := big.NewInt(1000000000000000000)
+	m.Div(n, decimal)
+
+	return m.String()
 }

@@ -53,17 +53,17 @@ func AirDrop() *cobra.Command {
 				fmt.Println("GetAccountInfo error !!!!")
 				return err
 			}
-			sequence, _ := helper.StrToInt(faucet_info.Sequence)
+			sequence, _ := helper.StrToInt(faucet_info.Value.Sequence)
 			fmt.Printf("No.2  Get faucet sequence : %d \n", sequence)
 
 			req := types.TransferTxReq{
 				Amount: conf.AirDropAmount,
-				Sender: faucet_info.Address,
+				Recipient: "",//faucet_info.Value.Address,
 				BaseTx: types.BaseTx{
 					LocalAccountName: faucet_name,
 					Password:         constants.KeyPassword,
 					ChainID:          conf.ChainId,
-					AccountNumber:    faucet_info.AccountNumber,
+					AccountNumber:    faucet_info.Value.AccountNumber,
 					Sequence:         helper.IntToStr(sequence),
 					Gas:              conf.AirDropGas,
 					Fees:             conf.AirDropFee,
@@ -72,7 +72,7 @@ func AirDrop() *cobra.Command {
 			}
 
 			//判断余额
-			faucetBalance, _ := account.ParseCoins(faucet_info.Coins[0])
+			faucetBalance, _ := account.ParseCoins(faucet_info.Value.Coins[0].Amount)
 			minBalance, _ := account.ParseCoins(conf.AirDropAmount)
 			minBalance = minBalance+10
 			if faucetBalance < minBalance {
@@ -90,7 +90,7 @@ func AirDrop() *cobra.Command {
 
 				//查重
 				if (record_list[airdrop_list[i].Address] != "") {
-					fmt.Println("Duplicated transfer : "+req.Sender+" to "+airdrop_list[i].Address)
+					fmt.Println("Duplicated transfer : "+req.Recipient+" to "+airdrop_list[i].Address)
 					airdrop_list[i].Status = "Duplicated"
 					airdrop_list[i].Hash = ""
 					airdrop_list[i].TransactionTime = ""
