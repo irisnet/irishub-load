@@ -14,7 +14,15 @@ func main() {
 	rootCmd.AddCommand(
 
 		//压力测试
-		//1)创建账户 2）签名交易 3）广播交易
+		// 1）创建账户   irishub-load init --config-dir=$HOME
+		//
+		// 2）签名交易   irishub-load signtx --config-dir=$HOME --tps=100 --duration=1 --account=wenxi
+		//              其中：总交易量=tps*duration*60
+		//
+		// 3）广播交易   irishub-load broadcast --config-dir=$HOME/local --tps=50 --interval=5
+		//              其中： 每轮广播tps*interval个交易， 如果在interval时间段完成， 则sleep直到interval时间结束，
+		//                    再开始新一轮广播， 循环直至所有的交易广播完毕。
+
 		cmd.FaucetInit(),
 		cmd.SignTx(),
 		cmd.BroadcastTx(),

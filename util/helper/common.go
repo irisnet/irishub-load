@@ -84,13 +84,13 @@ func RandomId() string{
 
 func PraseUser(name string) int {
 	switch name {
-	case "wenxi":
+	case "user0":
 		return 0
-	case "silei":
+	case "user1":
 		return 1
-	case "haoyang":
+	case "user2":
 		return 2
-	case "jiacheng":
+	case "user3":
 		return 3
 	default:
 		return -1
