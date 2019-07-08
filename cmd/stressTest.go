@@ -134,7 +134,7 @@ func BroadcastTx() *cobra.Command {
 				_, err = sign.BroadcastTx(sc.Text())
 
 				//如果遇到网络拥堵（lcd返回500）
-				//则每隔半秒检查一次，直至网路恢复
+				//则每隔半秒检查一次，直至网络恢复
 				if err != nil {
 					for {
 						time.Sleep(time.Millisecond * 500)

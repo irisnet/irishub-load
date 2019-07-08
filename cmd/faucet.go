@@ -88,6 +88,7 @@ func FaucetInit() *cobra.Command {
 					fmt.Println(msg)
 					return err
 				} else {
+					fmt.Printf("Send %s to %s succeed! \n", conf.MinBalance, subFaucet.FaucetAddr)
 					//如果转账成功， sequence+1
 					sequence++
 					req.BaseTx.Sequence = helper.IntToStr(sequence)

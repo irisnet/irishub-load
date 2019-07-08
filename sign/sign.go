@@ -296,6 +296,5 @@ func BroadcastTx(txBody string) ([]byte, error) {
 		log.Printf("check_tx check broadcast information failed\n")
 		return nil, fmt.Errorf("check broadcast information failed")
 	}
-	return resBytes, nil
 }
 
