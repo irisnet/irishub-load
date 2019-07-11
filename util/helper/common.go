@@ -52,6 +52,8 @@ func CreateFolder(folderPath string) error {
 }
 
 func WriteFile(filePath string, content []byte) error {
+	os.Remove(filePath)
+
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0755)
 	if err != nil {
 		return err
