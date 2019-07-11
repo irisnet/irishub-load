@@ -5,6 +5,17 @@ import (
 )
 
 ////////////////////////////////////////////////////
+type PublicKey struct {
+	Type   string `json:"type"`
+	Value  string `json:"value"`
+}
+
+type Coin struct {
+	Denom   string `json:"denom"`
+	Amount  string `json:"amount"`
+}
+
+////////////////////////////////////////////////////
 
 type AccountInfo struct {
 	LocalAccountName string `json:"name"`
@@ -17,10 +28,16 @@ type AccountInfo struct {
 }
 
 type AccountInfoRes struct {
+	Type  string           `json:"type"`
+	Value AccountInfoValue `json:"value"`
+}
+
+type AccountInfoValue struct {
+	Address       string   `json:"address"`
+	Coins         []Coin    `json:"coins"`
+	PublicKey     PublicKey   `json:"public_key"`
 	AccountNumber string   `json:"account_number"`
 	Sequence      string   `json:"sequence"`
-	Address       string   `json:"address"`
-	Coins         []string `json:"coins"`
 }
 
 ////////////////////////////////////////////////////
@@ -65,7 +82,7 @@ type Tag struct {
 
 type TransferTxReq struct {
 	Amount string `json:"amount"`
-	Sender string `json:"sender"`
+	Recipient string `json:"recipient"`
 	BaseTx BaseTx `json:"base_tx"`
 }
 

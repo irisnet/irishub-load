@@ -1,7 +1,7 @@
 {
 	"ChainId": "shilei-qa",
 	"Node":    "http://localhost:1317",
-	"Output":  "$HOME/output",
+	"Output":  "$HOME",
 	"FaucetSeed":  "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
 	"MinBalance": "500000iris",
 	"SubFaucets": [
@@ -28,6 +28,19 @@
 			"faucet_password": "1234567890",
 			"faucet_addr": "faa172w4exasa959gymaa3yc2ly574zjpgqakd6a3s",
 			"seed": "result collect pottery sight whisper horse noise now injury dune tobacco index brush wool final bind purpose exclude blame wire believe language work cinnamon"
+		},
+		{
+			"faucet_name": "t5",
+			"faucet_password": "1234567890",
+			"faucet_addr": "faa10kgv3jdzudvmgnpvfz7ezz8k9hzx6z5uehfkdd",
+			"seed": "nurse wing bid love crazy teach citizen hire there dwarf black long trend absent under book six inhale vacant olympic love illness mom wife"
 		}
-	]
+	],
+
+	"AirDropSeed":    "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
+	"AirDropGas":     "50000",
+	"AirDropFee":     "0.3iris",
+	"AirDropAmount":  "20iris",
+	"AirDropXlsx":    "/Users/sherlock/data.xlsx",
+	"AirDropXlsxTemp":    "/Users/sherlock/temp.xlsx"
 }

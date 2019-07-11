@@ -6,8 +6,8 @@ const (
 	KeyPassword   = "1234567890"
 
 	UriKeyCreate     = "/keys"
-	UriAccountInfo   = "/auth/accounts/%v"           // format is /auth/accounts/{address}
-	UriTransfer      = "/bank/accounts/%s/transfers" // format is /bank/accounts/{address}/transfers
+	UriAccountInfo   = "/bank/accounts/%v"           // format is /auth/accounts/{address}
+	UriTransfer      = "/bank/accounts/%s/send" // format is /bank/accounts/{address}/transfers
 	//UriTxs           = "/txs?action=send&sender=%s&recipient=%s"
 	UriTxs           = "/txs/%s"
 	UriTxBroadcast   = "/tx/broadcast"

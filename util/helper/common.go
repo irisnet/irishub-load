@@ -6,12 +6,14 @@ import (
 	"github.com/irisnet/irishub-load/conf"
 	"github.com/irisnet/irishub-load/util/constants"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
 	"runtime"
 	"strings"
 	"math/rand"
+	"math/big"
 	"time"
 	"github.com/spf13/viper"
 	"fmt"
@@ -82,14 +84,16 @@ func RandomId() string{
 
 func PraseUser(name string) int {
 	switch name {
-	case "wenxi":
+	case "user0":
 		return 0
-	case "silei":
+	case "user1":
 		return 1
-	case "haoyang":
+	case "user2":
 		return 2
-	case "jiacheng":
+	case "user3":
 		return 3
+	case "user4":
+		return 4
 	default:
 		return -1
 	}
@@ -97,9 +101,10 @@ func PraseUser(name string) int {
 
 func ReadConfigFile(dir string) error{
 	confDir := viper.GetString(dir)
-	viper.SetConfigName("config")
-	viper.AddConfigPath(confDir)
+	viper.SetConfigName("config")  // config.json
+	viper.AddConfigPath(confDir)      // $HOME
 	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println(err.Error())
 		return err
 	}
 	viper.UnmarshalKey("Node", &conf.NodeUrl)
@@ -268,4 +273,23 @@ func UserHomeDir() string {
 		return home
 	}
 	return os.Getenv("HOME")
+}
+
+/////////////////////////////////
+
+func IrisattoToIris(coins[] types.Coin) string{
+	coin := types.Coin{"0","0"}
+	for _, subCoin := range coins {
+		if subCoin.Denom == "iris-atto"{
+			coin = subCoin
+			break
+		}
+	}
+
+	m := big.NewInt(math.MaxInt64)
+	n,_ := new(big.Int).SetString(coin.Amount, 10)
+	decimal := big.NewInt(1000000000000000000)
+	m.Div(n, decimal)
+
+	return m.String()
 }

@@ -2,3 +2,4 @@
 vendor
 mock
 *.log
+.DS_Store
