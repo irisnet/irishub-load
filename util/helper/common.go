@@ -92,6 +92,8 @@ func PraseUser(name string) int {
 		return 2
 	case "user3":
 		return 3
+	case "user4":
+		return 4
 	default:
 		return -1
 	}
@@ -275,9 +277,17 @@ func UserHomeDir() string {
 
 /////////////////////////////////
 
-func IrisattoToIris(in string) string{
+func IrisattoToIris(coins[] types.Coin) string{
+	coin := types.Coin{"0","0"}
+	for _, subCoin := range coins {
+		if subCoin.Denom == "iris-atto"{
+			coin = subCoin
+			break
+		}
+	}
+
 	m := big.NewInt(math.MaxInt64)
-	n,_ := new(big.Int).SetString(in, 10)
+	n,_ := new(big.Int).SetString(coin.Amount, 10)
 	decimal := big.NewInt(1000000000000000000)
 	m.Div(n, decimal)
 
