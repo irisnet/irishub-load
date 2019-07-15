@@ -13,9 +13,9 @@ This simple tool is used to execute stress test for irishub.
 
 ./irishub-load signtx --config-dir=$HOME --tps=100 --duration=1 --account=user0
 
-#### Step.3   Broadcast tps * interval TXs for every interval seconds
+#### Step.3   Broadcast tps TXs for every second
 
-./irishub-load broadcast --config-dir=$HOME --tps=50 --interval=5
+./irishub-load broadcast --config-dir=$HOME --tps=100
 
 ## How to compile
 1) dep ensure -v

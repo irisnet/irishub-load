@@ -18,7 +18,7 @@ import (
 func SignTx() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signtx",
-		Example: "irishub-load signtx --config-dir=$HOME/local --tps=1 --duration=1 --account=wenxi",
+		Example: "irishub-load signtx --config-dir=$HOME/local --tps=1 --duration=1 --account=user0",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err                   error
@@ -91,7 +91,7 @@ func SignTx() *cobra.Command {
 func BroadcastTx() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "broadcast",
-		Example: "irishub-load broadcast --config-dir=$HOME/local --tps=1 --interval=5",
+		Example: "irishub-load broadcast --config-dir=$HOME/local --tps=1",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err                   error
@@ -106,9 +106,8 @@ func BroadcastTx() *cobra.Command {
 			if tps = viper.GetInt(FlagTps);tps <= 0 {
 				return fmt.Errorf("tps should > 0 ")
 			}
-			if interval = viper.GetInt(FlagInterval);interval < 5 {
-				return fmt.Errorf("duration should >= 5 ")
-			}
+
+			interval = 1
 
 			//一个块所发送的交易总数。发完后，如果时间还没有到，则等待。
 			TXsForOneBlock := tps * interval
@@ -147,8 +146,8 @@ func BroadcastTx() *cobra.Command {
 
 				//每隔TXsForOneBlock条检查一下，如果时间未用完则等待，并且打印当前广播进度。
 				if count % TXsForOneBlock == 0 {
-					if timeTemp.Add(time.Second * time.Duration(interval)).After(time.Now()) {
-						time.Sleep(timeTemp.Add(time.Second * time.Duration(interval)).Sub(time.Now()))
+					if timeTemp.Add(time.Millisecond * time.Duration(interval*1000)).After(time.Now()) {
+						time.Sleep(timeTemp.Add(time.Millisecond * time.Duration(interval*1000)).Sub(time.Now()))
 					}
 					log.Printf("Broadcast %d TXs\n", count)
 					timeTemp = time.Now()
@@ -168,7 +167,6 @@ func BroadcastTx() *cobra.Command {
 	cmd.Flags().AddFlagSet(broadcastTXFlagSet)
 	cmd.MarkFlagRequired(FlagConfDir)
 	cmd.MarkFlagRequired(FlagTps)
-	cmd.MarkFlagRequired(FlagInterval)
 
 	return cmd
 }
