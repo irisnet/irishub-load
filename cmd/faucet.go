@@ -55,18 +55,12 @@ func FaucetInit() *cobra.Command {
 
 			//构造转账交易
 			req := types.TransferTxReq{
-				Amount: conf.MinBalance,
-				Recipient: "",
-				BaseTx: types.BaseTx{
-					LocalAccountName: faucet_name,
-					Password:         constants.KeyPassword,
-					ChainID:          conf.ChainId,
-					AccountNumber:    faucet_info.Value.AccountNumber,
-					Sequence:         helper.IntToStr(sequence),
-					Gas:              constants.MockDefaultGas,
-					Fees:             constants.MockDefaultFee,
-					Memo:             fmt.Sprintf("transfer token"),
-				},
+				Amount:           conf.MinBalance,
+				ChainID:          conf.ChainId,
+				Sequence:         sequence,
+				SenderAddr:       conf.FaucetAddr,
+				SenderSeed:       conf.FaucetSeed,
+				Mode:             "commit=true",
 			}
 
 			//分别给5个账户转账
@@ -81,18 +75,17 @@ func FaucetInit() *cobra.Command {
 					}
 				}
 
-				req.Recipient = subFaucet.FaucetAddr
-
+				req.RecipientAddr = subFaucet.FaucetAddr
 				//给指定地址转账minBalance ,500000iris
-				if msg, err := tx.SendTx(req,  faucet_info.Value.Address, true); err != nil {
+				if msg, err := tx.SendTx(req); err != nil {
 					fmt.Println(msg)
 					return err
 				} else {
 					fmt.Printf("Send %s to %s succeed! \n", conf.MinBalance, subFaucet.FaucetAddr)
 					//如果转账成功， sequence+1
-					sequence++
-					req.BaseTx.Sequence = helper.IntToStr(sequence)
+					req.Sequence++
 				}
+
 			}
 
 			fmt.Println("Init end !!!!")

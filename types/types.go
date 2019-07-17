@@ -81,9 +81,13 @@ type Tag struct {
 ////////////////////////////////////////////////////
 
 type TransferTxReq struct {
-	Amount string `json:"amount"`
-	Recipient string `json:"recipient"`
-	BaseTx BaseTx `json:"base_tx"`
+	Amount    string
+	ChainID   string
+	Sequence  int
+	SenderAddr  string
+	SenderSeed  string
+	RecipientAddr  string
+	Mode         string
 }
 
 

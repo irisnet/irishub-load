@@ -5,18 +5,15 @@ var (
 	ChainId string
 	Output  string
 
+	FaucetAddr    string
 	FaucetSeed    string
 	MinBalance    string
 	SubFaucets    []SubFaucet
 
 	AirDropSeed   string
-	AirDropGas    string
-	AirDropFee    string
 	AirDropAmount string
-	AirDropRandom bool
 	AirDropXlsx   string
 	AirDropXlsxTemp   string
-	AirDropRecord   string
 )
 
 type SubFaucet struct {

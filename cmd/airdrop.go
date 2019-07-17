@@ -26,15 +26,9 @@ func AirDrop() *cobra.Command {
 				faucet_add  string
 				airdrop_list []types.AirDropInfo
 				faucet_info types.AccountInfoRes
-				//record_list  map[string]string
 			)
 			fmt.Println("Init AirDrop !!!!")
 			helper.ReadConfigFile(FlagConfDir)
-
-			//fmt.Println("Read transfer Record !!!!")
-			//if record_list, err = helper.ReadRecord(); err != nil {
-			//	return err
-			//}
 
 			if airdrop_list, xlsx, err = helper.ReadAddressList(FlagConfDir); err != nil {
 				fmt.Println("ReadAddressList error !!!!")
@@ -56,19 +50,14 @@ func AirDrop() *cobra.Command {
 			sequence, _ := helper.StrToInt(faucet_info.Value.Sequence)
 			fmt.Printf("No.2  Get faucet sequence : %d \n", sequence)
 
+			//构造转账交易
 			req := types.TransferTxReq{
-				Amount: conf.AirDropAmount,
-				Recipient: "",//faucet_info.Value.Address,
-				BaseTx: types.BaseTx{
-					LocalAccountName: faucet_name,
-					Password:         constants.KeyPassword,
-					ChainID:          conf.ChainId,
-					AccountNumber:    faucet_info.Value.AccountNumber,
-					Sequence:         helper.IntToStr(sequence),
-					Gas:              conf.AirDropGas,
-					Fees:             conf.AirDropFee,
-					Memo:            "airdrop token",
-				},
+				Amount:           conf.AirDropAmount,
+				ChainID:          conf.ChainId,
+				Sequence:         sequence,
+				SenderAddr:       conf.FaucetAddr,
+				SenderSeed:       conf.FaucetSeed,
+				Mode:             "",
 			}
 
 			//判断余额
@@ -88,28 +77,10 @@ func AirDrop() *cobra.Command {
 					continue
 				}
 
-				////查重
-				//if (record_list[airdrop_list[i].Address] != "") {
-				//	fmt.Println("Duplicated transfer : "+req.Recipient+" to "+airdrop_list[i].Address)
-				//	airdrop_list[i].Status = "Duplicated"
-				//	airdrop_list[i].Hash = ""
-				//	airdrop_list[i].TransactionTime = ""
-				//	airdrop_list[i].Amount = ""
-				//	helper.WriteAddressList(xlsx, airdrop_list[i])
-				//	continue
-				//}
-
-				//随机金额
-				if conf.AirDropRandom {
-					if req.Amount, err = account.RandomCoin(conf.AirDropAmount); err != nil {
-						return err
-					}
-				}
-
-				req.Recipient = airdrop_list[i].Address
+				req.RecipientAddr = airdrop_list[i].Address
 
 				//转账
-				if txRes, err := tx.SendTx(req, faucet_info.Value.Address, false); err != nil {
+				if txRes, err := tx.SendTx(req); err != nil {
 					fmt.Println(err.Error())
 
 					airdrop_list[i].Status = "Error"
@@ -122,8 +93,7 @@ func AirDrop() *cobra.Command {
 				} else {
 					fmt.Printf("(%d) Send %s to %s ok! \n", i+1,req.Amount, airdrop_list[i].Address)
 
-					sequence++
-					req.BaseTx.Sequence = helper.IntToStr(sequence)
+					req.Sequence++
 					airdrop_list[i].Status = ""
 					airdrop_list[i].Hash = txRes.Hash
 					airdrop_list[i].TransactionTime = time.Now().UTC().Format(time.UnixDate)

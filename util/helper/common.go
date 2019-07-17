@@ -20,6 +20,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/irisnet/irishub-load/types"
+	sdk "github.com/irisnet/irishub/types"
 )
 
 func CheckFileExist(filePath string) (bool, error) {
@@ -113,56 +114,19 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("Output", &conf.Output)
 	viper.UnmarshalKey("ChainId", &conf.ChainId)
 	viper.UnmarshalKey("MinBalance", &conf.MinBalance)
+	viper.UnmarshalKey("FaucetAddr", &conf.FaucetAddr)
 	viper.UnmarshalKey("FaucetSeed", &conf.FaucetSeed)
 	viper.UnmarshalKey("SubFaucets", &conf.SubFaucets)
 
 	viper.UnmarshalKey("AirDropSeed", &conf.AirDropSeed)
-	viper.UnmarshalKey("AirDropGas", &conf.AirDropGas)
-	viper.UnmarshalKey("AirDropFee", &conf.AirDropFee)
 	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
-	viper.UnmarshalKey("AirDropRandom", &conf.AirDropRandom)
 	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
 	viper.UnmarshalKey("AirDropXlsxTemp", &conf.AirDropXlsxTemp)
-	viper.UnmarshalKey("AirDropRecord", &conf.AirDropRecord)
 
 	return nil
 }
 
 /////////////////////////////////
-func ReadRecord()(map[string]string, error) {
-	file, err := os.OpenFile(conf.AirDropRecord, os.O_RDONLY, 0)
-	if err != nil {
-		return nil, fmt.Errorf("can't find directory in %v\n", conf.Output)
-	}
-	defer file.Close()
-	sc := bufio.NewScanner(file)
-
-	var record_list = map[string]string{} //map速度快,一定要初始化
-	for sc.Scan() { //sc.Scan()默认以 \n 分隔
-		record_list[sc.Text()] = "bingo"
-	}
-
-	if err := sc.Err(); err != nil{
-		fmt.Println("An error has happened, when we run buf scanner")
-		return nil, err
-	}
-
-	return record_list, nil
-}
-
-func SaveRecord(record_list map[string]string) error {
-	var record_array []string
-	for k, v := range record_list {
-		record_array = append(record_array, k+":"+v)
-	}
-
-	if err := WriteFile(conf.AirDropRecord, []byte(strings.Join(record_array, "\n"))); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 	//fmt.Println("ReadAddressList() !!!!")
 
@@ -294,4 +258,12 @@ func IrisattoToIris(coins[] types.Coin) string{
 	m.Div(n, decimal)
 
 	return m.String()
+}
+
+func IrisToIrisatto(amount string) sdk.Coins{
+	amtStr := strings.Replace(amount, constants.Denom, "", -1)
+	n,_ := sdk.NewIntFromString(amtStr)
+	decimal := sdk.NewInt(1000000000000000000)
+	n = n.Mul(decimal)
+	return sdk.Coins{{Denom: "iris-atto", Amount: n}}
 }

@@ -1,9 +1,9 @@
 package tx
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/irisnet/irishub-load/sign"
 	"github.com/irisnet/irishub-load/types"
 	"github.com/irisnet/irishub-load/util/constants"
 	"github.com/irisnet/irishub-load/util/helper"
@@ -12,41 +12,36 @@ import (
 
 /////////////////////////////////////////
 
-func SendTx(req types.TransferTxReq, dstAddress string, sync bool) (types.TransferTxRes, error) {
+func SendTx(req types.TransferTxReq)(types.TransferTxRes, error) {
 	var (
-		transferTxInfo types.TransferTxRes
-		op string
+		err                   error
+		transferTxInfo   types.TransferTxRes
+		PrivateInfo		 types.AccountTestPrivateInfo
+		SignedDataString      string
+
+		response []byte
 	)
 
-	if sync {
-		op= "?commit=true"
-	} else {
-		op= ""
+	if PrivateInfo, err = sign.InitAccountSignProcess(req.SenderAddr,req.SenderSeed); err!=nil {
+		return transferTxInfo, fmt.Errorf("Get private info error : %s", err.Error())
 	}
 
-	uri := fmt.Sprintf(constants.UriTransfer, dstAddress)+op
+	if SignedDataString, err = sign.GenSingleSignTxByTend(req, PrivateInfo); err!=nil {
+		return transferTxInfo, fmt.Errorf("GenSignTx error : %s", err.Error())
+	}
 
-	reqBytes, err := json.Marshal(req)
-	if err != nil {
+	//fmt.Println(SignedDataString)
+
+	if response, err = sign.BroadcastTx(SignedDataString, req.Mode); err!=nil {
+		fmt.Println(string(response))
+		return transferTxInfo, fmt.Errorf("BroadcastTx error : %s", err.Error())
+	}
+
+	if err := json.Unmarshal(response, &transferTxInfo); err != nil {
 		return transferTxInfo, err
 	}
-	reqBuffer := bytes.NewBuffer(reqBytes)
-	statusCode, resBytes, err := helper.HttpClientPostJsonData(uri, reqBuffer)
 
-	if err != nil {
-		return transferTxInfo, err
-	}
-
-	//fmt.Println(string(resBytes))
-	if statusCode == constants.StatusCodeOk {
-		if err := json.Unmarshal(resBytes, &transferTxInfo); err != nil {
-			return transferTxInfo, err
-		}
-
-		return transferTxInfo, nil
-	} else {
-		return transferTxInfo, fmt.Errorf(string(resBytes))
-	}
+	return transferTxInfo, nil
 }
 
 func CheckTx(tx string) error {

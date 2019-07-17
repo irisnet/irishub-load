@@ -154,6 +154,88 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 
 */
 
+func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.AccountTestPrivateInfo) (string, error) {
+	cdc := codec.New()
+	auth.RegisterCodec(cdc)
+	bank.RegisterCodec(cdc)
+
+	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
+	cdc.RegisterConcrete(secp256k1.PubKeySecp256k1{},
+		"tendermint/PubKeySecp256k1", nil)
+
+	cdc.RegisterInterface((*sdk.Msg)(nil), nil)
+	cdc.RegisterInterface((*sdk.Tx)(nil), nil)
+
+	from, err := sdk.AccAddressFromBech32(accountPrivate.Addr)
+
+	if err != nil {
+		return "", errors.New("err in address to String")
+	}
+
+	coins := helper.IrisToIrisatto(req.Amount)
+
+	//构造转账的结构
+	input := bank.Input{Address: from, Coins: coins}
+
+	//构造fee
+	feea, ok := sdk.NewIntFromString(feeAmtV)
+	feeAmt := sdk.Coins{{Denom: denom, Amount: feea}}
+	if !ok {
+		return "", errors.New("err in String to int")
+	}
+	var msgs []sdk.Msg
+
+	fee := auth.StdFee{Amount: feeAmt, Gas: gas}
+
+	priv := secp256k1.PrivKeySecp256k1(accountPrivate.PrivateKey)
+
+	to, err := sdk.AccAddressFromBech32(req.RecipientAddr)
+
+	if err != nil {
+		return "", errors.New("err 2 in address to String")
+	}
+
+	output := bank.Output{Address: to, Coins: coins}
+
+	//构造"msg"
+	msgs = []sdk.Msg{bank.MsgSend{
+		Inputs:  []bank.Input{input},
+		Outputs: []bank.Output{output},
+	}}
+
+	sigMsg := StdSignMsg{
+		ChainID:       req.ChainID,
+		AccountNumber: accountPrivate.AccountNumber,
+		Sequence:      uint64(req.Sequence),
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           fee,
+	}
+
+	//签名单条交易
+	tx := genSignedDataByTend(priv, sigMsg, accountPrivate, msgs, fee)
+	bz, _ := cdc.MarshalJSON(tx)
+	var signedTx types.TxDataRes
+	err = json.Unmarshal(bz, &signedTx)
+	if err != nil {
+		log.Printf("%v: sign tx failed: %v\n", "SignByTend", err)
+		return "", err
+	}
+
+	postTx := types.TxBroadcast{
+		Tx: signedTx.Value,
+	}
+	postTx.Tx.Msgs[0].Type = "irishub/bank/Send"
+	postTxBytes, err := json.Marshal(postTx)
+	//log.Printf("%s\n", postTxBytes)
+	if err != nil {
+		log.Printf("%v: cdc marshal json fail: %v\n", "", err)
+		return "", err
+	}
+
+	return string(postTxBytes), nil
+}
+
 func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []SubFaucet, accountPrivate types.AccountTestPrivateInfo) ([]string, error) {
 
 	cdc := codec.New()
@@ -268,11 +350,12 @@ func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, acc
 	return tx
 }
 
-func BroadcastTx(txBody string) ([]byte, error) {
+func BroadcastTx(txBody string, mode string) ([]byte, error) {
 	reqBytes := []byte(txBody)
 
 	reqBuffer := bytes.NewBuffer(reqBytes)
-	uri := constants.UriTxBroadcast + "?async=true"
+	//uri := constants.UriTxBroadcast +
+	uri := constants.UriTxBroadcast + "?" + mode
 	statusCode, resBytes, err := helper.HttpClientPostJsonData(uri, reqBuffer)
 
 	// handle response
