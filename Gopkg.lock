@@ -134,6 +134,14 @@
   version = "v1.4.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ef33f38e2b877e483edc4b81e41a59ad1922ab3baafc8ac08a8ea7daf736d015"
+  name = "github.com/grd/statistics"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5af75da930c99033f9b3415c824ec7458ee616cc"
+
+[[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -621,6 +629,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/360EntSecGroup-Skylar/excelize",
+    "github.com/grd/statistics",
     "github.com/irisnet/irishub/codec",
     "github.com/irisnet/irishub/crypto/keys/hd",
     "github.com/irisnet/irishub/modules/auth",

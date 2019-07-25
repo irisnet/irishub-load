@@ -30,6 +30,7 @@ func main() {
 		//其他feature，和压测无关
 		cmd.AirDrop(),
 		cmd.SeedTest(),
+		cmd.RandTest(),
 	)
 
 	//PreRun bind viper
