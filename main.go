@@ -31,6 +31,7 @@ func main() {
 		cmd.AirDrop(),
 		cmd.SeedTest(),
 		cmd.RandTest(),
+		cmd.QueryTest(),
 	)
 
 	//PreRun bind viper

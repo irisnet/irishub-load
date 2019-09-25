@@ -11,6 +11,7 @@ const (
 	//UriTxs           = "/txs?action=send&sender=%s&recipient=%s"
 	UriTxs           = "/txs/%s"
 	UriTxBroadcast   = "/tx/broadcast"
+	UriQueryTx       = "/txs?%s" //  txs?action=send&search_request_page=1&search_request_size=1
 
 	// http status code
 	StatusCodeOk       = 200
@@ -21,3 +22,6 @@ const (
 	MockDefaultFee     = "5iris"
 	Denom              = "iris"
 )
+
+
+

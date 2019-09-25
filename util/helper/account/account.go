@@ -73,6 +73,34 @@ func GetAccountInfo(address string) (types.AccountInfoRes, error) {
 	}
 }
 
+// get TX info
+func GetTxInfo() (types.AccountInfoRes, error) {
+	var (
+		accountInfo types.AccountInfoRes
+	)
+	uri := fmt.Sprintf(constants.UriQueryTx, "action=send&search_request_page=1&search_request_size=1")
+
+	statusCode, resByte, err := helper.HttpClientGetData(uri)
+
+
+
+	if err != nil {
+		return accountInfo, err
+	}
+
+	if statusCode == constants.StatusCodeOk {
+		//if err := json.Unmarshal(resByte, &accountInfo); err != nil {
+		//	return accountInfo, err
+		//}
+
+		fmt.Println(string(resByte))
+		return accountInfo, nil
+	} else {
+		return accountInfo, fmt.Errorf("status code is not ok, code: %v", statusCode)
+	}
+}
+
+
 /////////////////////////////////////
 func ParseCoins(coin string) (float64, error) {
 	amtStr := strings.Replace(coin, constants.Denom, "", -1)
