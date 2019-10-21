@@ -33,7 +33,8 @@ var (
 
 const (
 	amtV    = "1000000000000000"
-	feeAmtV = "5000000000000000000"
+	//feeAmtV = "5000000000000000000"  //这个估计是测试网压力测试用的fee
+	feeAmtV = "250000000000000000" //主网空投用这个fee
 	denom   = "iris-atto"
 	gas     = uint64(20000)
 	memo    = ""
@@ -165,6 +166,13 @@ func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.Account
 
 	cdc.RegisterInterface((*sdk.Msg)(nil), nil)
 	cdc.RegisterInterface((*sdk.Tx)(nil), nil)
+
+	if (accountPrivate.Addr[:3] == "iaa"){
+		sdk.SetNetworkType("mainnet")
+	} else {
+		//注意这里没有测试过
+		sdk.SetNetworkType("testnet")
+	}
 
 	from, err := sdk.AccAddressFromBech32(accountPrivate.Addr)
 

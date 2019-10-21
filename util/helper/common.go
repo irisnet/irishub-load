@@ -118,6 +118,8 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("FaucetSeed", &conf.FaucetSeed)
 	viper.UnmarshalKey("SubFaucets", &conf.SubFaucets)
 
+	viper.UnmarshalKey("AirDropChainId", &conf.AirDropChainId)
+	viper.UnmarshalKey("AirDropAddr", &conf.AirDropAddr)
 	viper.UnmarshalKey("AirDropSeed", &conf.AirDropSeed)
 	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
 	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
@@ -144,6 +146,10 @@ func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 	rows,_  := xlsx.GetRows("Sheet1")
 	for i, row := range rows {
 		for j, colCell := range row {
+			if j == 0 && i>=1 {
+				airdrop_info.Amount = colCell
+			}
+
 			if j == 1 && i>=1 {
 				airdrop_info.Address = colCell
 				airdrop_info.Pos     = i+1
@@ -262,8 +268,16 @@ func IrisattoToIris(coins[] types.Coin) string{
 
 func IrisToIrisatto(amount string) sdk.Coins{
 	amtStr := strings.Replace(amount, constants.Denom, "", -1)
-	n,_ := sdk.NewIntFromString(amtStr)
-	decimal := sdk.NewInt(1000000000000000000)
-	n = n.Mul(decimal)
+	dec,_ := sdk.NewDecFromStr(amtStr)
+	decimal := sdk.NewDec(1000000000000000000)
+	n := dec.Mul(decimal).TruncateInt()
+	//fmt.Printf(" : %s \n", n.String())
 	return sdk.Coins{{Denom: "iris-atto", Amount: n}}
 }
+
+//原来不带小数的做法
+//amtStr := strings.Replace(amount, constants.Denom, "", -1)
+//n,_ := sdk.NewIntFromString(amtStr)
+//decimal := sdk.NewInt(1000000000000000000)
+//n = n.Mul(decimal)
+//return sdk.Coins{{Denom: "iris-atto", Amount: n}}

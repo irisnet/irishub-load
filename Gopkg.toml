@@ -29,6 +29,11 @@
   source = "https://github.com/satori/go.uuid.git"
   version = "=v1.2.0"
 
+[[constraint]]
+  name = "github.com/irisnet/irishub"
+  source = "https://github.com/irisnet/irishub.git"
+  version = "v0.14.0"
+
 [prune]
   go-tests = true
   unused-packages = true

@@ -33,14 +33,6 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  digest = "1:3d43e35d7159c669fd70a9499170ad06a85bdb075f7db1e3b9cc604c17a9293b"
-  name = "github.com/cosmos/cosmos-sdk"
-  packages = ["codec"]
-  pruneopts = "UT"
-  revision = "6bff7082607a2c36439f8b6218816878c41ca6af"
-  version = "v0.29.1"
-
-[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -169,7 +161,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:ac754b957b9597fd6c89b2dd898c82ff5ae9a25140bf553fbdc06f5a4bbae279"
+  digest = "1:f7ee7d412291e4a0d3f7e583f8155faa59b300c44f6fb3c740d5795800fda155"
   name = "github.com/irisnet/irishub"
   packages = [
     "codec",
@@ -182,8 +174,9 @@
     "types",
   ]
   pruneopts = "UT"
-  revision = "f6098c20cbf62d811bf74b5578854d7705d93bd0"
-  version = "v0.9.1"
+  revision = "073988bd1cd67b06f46946d36ea3cbfe60231f70"
+  source = "https://github.com/irisnet/irishub.git"
+  version = "v0.14.5"
 
 [[projects]]
   branch = "master"
