@@ -34,6 +34,8 @@ shelwin wang drop siege embark season rally primary bullet detect scrap toilet t
    助记词可以生成签名后的交易。 简单查账的话可以把水龙头的iaa在config里面事先写好。
 
 5. 完成后会把交易hash和结果 写回data.xlsl
+
+6. 另外注意下：收款地址不要有 iaa1mvfej6hvkuplcvm9aa2qdeh54npvdnshzcjpat 这个是交易所地址，需要备注memo， 先核查。
 */
 
 	cmd := &cobra.Command{
