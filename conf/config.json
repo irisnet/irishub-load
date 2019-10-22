@@ -38,8 +38,11 @@
 		}
 	],
 
-	"AirDropSeed":    "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
-	"AirDropAmount":  "20iris",
-	"AirDropXlsx":    "/Users/sherlock/data.xlsx",
-	"AirDropXlsxTemp":    "/Users/sherlock/temp.xlsx"
+
+
+	"AirDropChainId": "irishub",
+	"AirDropAddr":  "iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93",
+	"AirDropSeed":  "",
+	"AirDropAmount":  "0.01iris",
+	"AirDropXlsx":    "/Users/sherlock/data.xlsx"
 }

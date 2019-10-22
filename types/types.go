@@ -47,7 +47,6 @@ type AirDropInfo struct {
 	Address               string
 	Status                string
 	Hash                  string
-	TransactionTime       string
 	Amount                string
 }
 
@@ -89,8 +88,6 @@ type TransferTxReq struct {
 	RecipientAddr  string
 	Mode         string
 }
-
-
 
 type BaseTx struct {
 	LocalAccountName string `json:"name"`

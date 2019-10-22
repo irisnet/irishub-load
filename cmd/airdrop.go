@@ -14,6 +14,28 @@ import (
 )
 
 func AirDrop() *cobra.Command {
+
+/*  先看这里：
+0. 编译主网iris版本， ide 编辑配置中 airDrop --config-dir=$HOME
+
+1. 打开lcd（注意要主网版本）
+	irislcd start --node=http://seed-1.mainnet.irisnet.org:26657 --laddr=tcp://0.0.0.0:1317 --chain-id=irisnet --home=$HOME/.irislcd/ --trust-node
+
+明细查账：     https://www.irisplorer.io/#/txs/transfers
+查水龙头余额： https://www.irisplorer.io/#/address/iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93
+
+2. 把主网版本的data和config在home目录（/Users/sherlock/）下，改下config中空投的助记词
+
+3. 确保 iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93 有钱
+strike-drop：
+drop siege embark season rally primary bullet detect scrap toilet tank fine hire praise humor leader swim entire syrup brush scheme unusual display wrong
+
+4. 把create account删除了（lcd不支持key了），后续没有用了。实在要用可以考虑iks。
+   助记词可以生成签名后的交易。 简单查账的话可以把水龙头的iaa在config里面事先写好。
+
+5. 完成后会把交易hash和结果 写回data.xlsl
+*/
+
 	cmd := &cobra.Command{
 		Use:                    "airDrop",
 		Example:                "irishub-load airDrop --config-dir=$HOME",
@@ -21,38 +43,19 @@ func AirDrop() *cobra.Command {
 			var (
 				err         error
 				xlsx        *excelize.File
-				//faucet_name string
-				//faucet_add  string
 				airdrop_list []types.AirDropInfo
 				faucet_info types.AccountInfoRes
 			)
-			fmt.Println("Init AirDrop !!!!")
+			fmt.Println("No.1  Init AirDrop !!!!")
 			helper.ReadConfigFile(FlagConfDir)
 
+			//从excel中读取金额和地址列表
 			if airdrop_list, xlsx, err = helper.ReadAddressList(FlagConfDir); err != nil {
 				fmt.Println("ReadAddressList error !!!!")
 				return err
 			}
 
-			// AirDropAddr 直接卸载conf里面了. 助记词解析出地址，不要了。后续有时间改下。
-			/*
-				faucet_name = "faucet_" + helper.RandomId()
-				fmt.Printf("No.1  Create new faucet account : %s \n", faucet_name)
-				if faucet_add, err = account.CreateAccount(faucet_name, constants.KeyPassword, conf.AirDropSeed); err != nil {
-					fmt.Println("CreateAccount error !!!!")
-					return err
-				}
-			*/
-
-
-			/*  先看这里：
-				打开lcd ：irislcd-mainnet start --node=http://seed-1.mainnet.irisnet.org:26657 --laddr=tcp://0.0.0.0:1317 --chain-id=irisnet --home=$HOME/.irislcd/ --trust-node
-				把data.xlsx和config.json copy到 home目录
-				这里把create 注释掉了， 地址有钱， 助记词对就行。 后面可以直接签名，广播。
-				AirDropAddr 直接卸载conf里面了，不从助记词读出。
-			 */
-
-			// 主网地址发币地址 ： conf.AirDropAddr
+			// 读出水龙头信息， iaa地址：conf.AirDropAddr
 			if faucet_info, err = account.GetAccountInfo(conf.AirDropAddr); err != nil {
 				fmt.Println("GetAccountInfo error !!!!")
 				return err
@@ -62,12 +65,12 @@ func AirDrop() *cobra.Command {
 
 			//构造转账交易
 			req := types.TransferTxReq{
-				Amount:           "", //conf.AirDropAmount,
+				Amount:           conf.AirDropAmount, //如果不是固定值，后面会重新赋值
 				ChainID:          conf.AirDropChainId,
 				Sequence:         sequence,
 				SenderAddr:       conf.AirDropAddr,
 				SenderSeed:       conf.AirDropSeed,
-				Mode:              "",
+				Mode:             "", //调试的时候可以用 "commit=true",
 			}
 
 			//判断余额
@@ -79,37 +82,28 @@ func AirDrop() *cobra.Command {
 			}
 			fmt.Printf("No.3  faucetBalance : %f \n", faucetBalance)
 
-			//fmt.Printf("No.4  Transfer balance : %s to  accounts \n",conf.AirDropAmount)
 			for i, _ := range airdrop_list{
-				if !helper.IsCellEmpty(xlsx, airdrop_list[i]){
-					index := helper.IntToStr(airdrop_list[i].Pos)
-					fmt.Println("G"+index+" is not empty!")
-					continue
-				}
-
+				req.Amount = airdrop_list[i].Amount //如果是固定值，这里可以注释掉
 				req.RecipientAddr = airdrop_list[i].Address
-				req.Amount = airdrop_list[i].Amount
 
 				//转账
 				if txRes, err := tx.SendTx(req); err != nil {
+					//转账失败，break
 					fmt.Println(err.Error())
 
 					airdrop_list[i].Status = "Error"
 					airdrop_list[i].Hash = err.Error()
-					airdrop_list[i].TransactionTime = ""
-					airdrop_list[i].Amount = ""
 					helper.WriteAddressList(xlsx, airdrop_list[i])
-
 					break
 				} else {
-					fmt.Printf("(%d) Send %s to %s ok! \n", i+1,req.Amount, airdrop_list[i].Address)
+					//转账成功
+					fmt.Printf("(%d) Send %s iris to %s ok! \n", i+1,req.Amount, airdrop_list[i].Address)
 
 					req.Sequence++
 					airdrop_list[i].Status = ""
 					airdrop_list[i].Hash = txRes.Hash
-					airdrop_list[i].TransactionTime = time.Now().UTC().Format(time.UnixDate)
-					airdrop_list[i].Amount = req.Amount
 
+					//把数据都写到内存列表中
 					helper.WriteAddressList(xlsx, airdrop_list[i])
 					time.Sleep(time.Duration(100)*time.Millisecond)
 				}
@@ -118,28 +112,29 @@ func AirDrop() *cobra.Command {
 			fmt.Println("-------------\nSend TX ok, wait 15 seconds for Check TX !\n-------------")
 			time.Sleep(time.Duration(15)*time.Second)
 
-			fmt.Println("No.5  Check if TX succeeed \n")
-			for _, sub := range airdrop_list{
+			fmt.Println("No.4  Check if TX succeeed \n")
+			for i, sub := range airdrop_list{
 				if sub.Status != "" || sub.Hash == ""{
 					continue
 				}
 
 				if  err := tx.CheckTx(sub.Hash); err != nil {
-					fmt.Println("Check TX Error : "+sub.Address+" "+ sub.Hash)
+					fmt.Printf("(%d) Check TX Error : "+sub.Address+" "+ sub.Hash + "\n", i+1)
 					sub.Status = "CheckTXError"
 				}else{
-					fmt.Println(sub.Address+" "+ sub.Hash + " Check TX OK !!")
+					fmt.Printf("(%d) "+sub.Address+" "+ sub.Hash + " Check TX OK !!\n", i+1)
 					sub.Status = "Succeed"
 				}
 
+				//最终把所有数据都写到内存列表中
 				helper.WriteAddressList(xlsx, sub)
 			}
 
-			//if err = helper.SaveAddressList(xlsx, conf.AirDropXlsx); err != nil {
-			//	fmt.Println("SaveAddressList error !!!! Save result to tempfile!!")
-			//	helper.SaveAddressList(xlsx, conf.AirDropXlsxTemp)
-			//	return err
-			//}
+			//hash写c列 结果写d列， 注意data.xlsx要关闭
+			if err = helper.SaveAddressList(xlsx, conf.AirDropXlsx); err != nil {
+				fmt.Println("SaveAddressList error !!!! ")
+				return err
+			}
 
 			fmt.Println("AirDrop end !!!!")
 			return nil

@@ -33,8 +33,8 @@ var (
 
 const (
 	amtV    = "1000000000000000"
-	//feeAmtV = "5000000000000000000"  //这个估计是测试网压力测试用的fee
-	feeAmtV = "250000000000000000" //主网空投用这个fee
+	feeForTestnet = "5000000000000000000"  //这个估计是测试网压力测试用的fee
+	feeForMainnet = "200000000000000000" //主网空投用这个fee
 	denom   = "iris-atto"
 	gas     = uint64(20000)
 	memo    = ""
@@ -97,64 +97,7 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 	return Account, err
 }
 
-// tx example:
-/*{
-  "tx": {
-    "msg": [
-      {
-        "type": "irishub/bank/Send",
-        "value": {
-          "inputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "fee": {
-      "amount": [
-        {
-          "denom": "iris-atto",
-          "amount": "5000000000000000000"
-        }
-      ],
-      "gas": "20000"
-    },
-    "signatures": [
-      {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"
-        },
-        "signature": "lCgkVUMEWRWzg36i8TDYqR2yJTyE/VV1CJlet//LEeweF2WcqkN9oEXxcPMonCSSRPWu30+dey8a07VIEmRppA==",
-        "account_number": "3",
-        "sequence": "3"
-      }
-    ],
-    "memo": ""
-  }
-}
-
-*/
-
+//空投
 func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.AccountTestPrivateInfo) (string, error) {
 	cdc := codec.New()
 	auth.RegisterCodec(cdc)
@@ -186,7 +129,7 @@ func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.Account
 	input := bank.Input{Address: from, Coins: coins}
 
 	//构造fee
-	feea, ok := sdk.NewIntFromString(feeAmtV)
+	feea, ok := sdk.NewIntFromString(feeForMainnet)
 	feeAmt := sdk.Coins{{Denom: denom, Amount: feea}}
 	if !ok {
 		return "", errors.New("err in String to int")
@@ -244,6 +187,7 @@ func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.Account
 	return string(postTxBytes), nil
 }
 
+//压测
 func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []SubFaucet, accountPrivate types.AccountTestPrivateInfo) ([]string, error) {
 
 	cdc := codec.New()
@@ -270,7 +214,7 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 	input := bank.Input{Address: from, Coins: coins}
 
 	//构造fee
-	feea, ok := sdk.NewIntFromString(feeAmtV)
+	feea, ok := sdk.NewIntFromString(feeForTestnet)
 	feeAmt := sdk.Coins{{Denom: denom, Amount: feea}}
 	if !ok {
 		return nil, errors.New("err in String to int")
@@ -340,6 +284,7 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 	return signedData, nil
 }
 
+//空投和压测中分别调用
 func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, accountPrivate types.AccountTestPrivateInfo, msgs []sdk.Msg, fee auth.StdFee) (auth.StdTx) {
 	sigBz := sigMsg.Bytes()
 	sigByte, err := priv.Sign(sigBz)
@@ -389,3 +334,60 @@ func BroadcastTx(txBody string, mode string) ([]byte, error) {
 	}
 }
 
+// tx example:
+/*{
+  "tx": {
+    "msg": [
+      {
+        "type": "irishub/bank/Send",
+        "value": {
+          "inputs": [
+            {
+              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
+              "coins": [
+                {
+                  "denom": "iris-atto",
+                  "amount": "1000000000000000"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
+              "coins": [
+                {
+                  "denom": "iris-atto",
+                  "amount": "1000000000000000"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "fee": {
+      "amount": [
+        {
+          "denom": "iris-atto",
+          "amount": "5000000000000000000"
+        }
+      ],
+      "gas": "20000"
+    },
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"
+        },
+        "signature": "lCgkVUMEWRWzg36i8TDYqR2yJTyE/VV1CJlet//LEeweF2WcqkN9oEXxcPMonCSSRPWu30+dey8a07VIEmRppA==",
+        "account_number": "3",
+        "sequence": "3"
+      }
+    ],
+    "memo": ""
+  }
+}
+
+*/

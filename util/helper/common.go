@@ -123,7 +123,6 @@ func ReadConfigFile(dir string) error{
 	viper.UnmarshalKey("AirDropSeed", &conf.AirDropSeed)
 	viper.UnmarshalKey("AirDropAmount", &conf.AirDropAmount)
 	viper.UnmarshalKey("AirDropXlsx", &conf.AirDropXlsx)
-	viper.UnmarshalKey("AirDropXlsxTemp", &conf.AirDropXlsxTemp)
 
 	return nil
 }
@@ -146,10 +145,12 @@ func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 	rows,_  := xlsx.GetRows("Sheet1")
 	for i, row := range rows {
 		for j, colCell := range row {
+			//读取金额 ，第1列， 跳过首行
 			if j == 0 && i>=1 {
 				airdrop_info.Amount = colCell
 			}
 
+			//读取地址 ，第2列， 跳过首行
 			if j == 1 && i>=1 {
 				airdrop_info.Address = colCell
 				airdrop_info.Pos     = i+1
@@ -163,12 +164,11 @@ func ReadAddressList(dir string) ([]types.AirDropInfo, *excelize.File, error){
 
 func WriteAddressList(xlsx *excelize.File, airDropinfo types.AirDropInfo) {
 	index := IntToStr(airDropinfo.Pos)
-	xlsx.SetCellValue("Sheet1", "G"+index, airDropinfo.Status)
-	xlsx.SetCellValue("Sheet1", "H"+index, airDropinfo.Hash)
-	xlsx.SetCellValue("Sheet1", "I"+index, airDropinfo.TransactionTime)
-	xlsx.SetCellValue("Sheet1", "J"+index, airDropinfo.Amount)
+	xlsx.SetCellValue("Sheet1", "C"+index, airDropinfo.Hash)
+	xlsx.SetCellValue("Sheet1", "D"+index, airDropinfo.Status)
 }
 
+//判断单元格是否为空，现在不用了。
 func IsCellEmpty(xlsx *excelize.File, airDropinfo types.AirDropInfo) bool {
 	index := IntToStr(airDropinfo.Pos)
 	result, _ := xlsx.GetCellValue("Sheet1", "G"+index)
@@ -266,18 +266,11 @@ func IrisattoToIris(coins[] types.Coin) string{
 	return m.String()
 }
 
+//支持小数，如1.23iris
 func IrisToIrisatto(amount string) sdk.Coins{
 	amtStr := strings.Replace(amount, constants.Denom, "", -1)
 	dec,_ := sdk.NewDecFromStr(amtStr)
 	decimal := sdk.NewDec(1000000000000000000)
-	n := dec.Mul(decimal).TruncateInt()
-	//fmt.Printf(" : %s \n", n.String())
+	n := dec.Mul(decimal).TruncateInt() //做乘法，然后去掉小数后面取整数 ，fmt.Printf(" : %s \n", n.String())
 	return sdk.Coins{{Denom: "iris-atto", Amount: n}}
 }
-
-//原来不带小数的做法
-//amtStr := strings.Replace(amount, constants.Denom, "", -1)
-//n,_ := sdk.NewIntFromString(amtStr)
-//decimal := sdk.NewInt(1000000000000000000)
-//n = n.Mul(decimal)
-//return sdk.Coins{{Denom: "iris-atto", Amount: n}}

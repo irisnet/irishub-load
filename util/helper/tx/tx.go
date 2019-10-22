@@ -65,35 +65,3 @@ func CheckTx(tx string) error {
 
 
 }
-
-//判断是否已经转账过  上链检查  支持一个全节点配置index_all_tags = true
-
-//if duplicated, err := tx.ChechTx(req.Sender, sub.Address); err == nil {
-//if duplicated {
-//fmt.Println("Duplicated transfer : "+req.Sender+" to "+sub.Address)
-//sub.Status = "Duplicated"
-//sub.Hash = ""
-//sub.TransactionTime = ""
-//sub.Amount = ""
-//helper.WriteAddressList(xlsx, sub)
-//continue
-//}
-//}else {
-//fmt.Println(err.Error())
-//break
-//}
-
-//func ChechTx2(sender string, recipient string)(bool,error) {
-//	uri := fmt.Sprintf(constants.UriTxs, sender, recipient)
-//	statusCode, resByte, err := helper.HttpClientGetData(uri)
-//
-//	if err != nil {
-//		return false, err
-//	}
-//
-//	if statusCode == constants.StatusCodeOk {
-//		return string(resByte) != "[]", nil
-//	} else {
-//		return false, fmt.Errorf("status code is not ok, code: %v", statusCode)
-//	}
-//}

@@ -15,7 +15,6 @@ var (
 	AirDropSeed      string
 	AirDropAmount    string
 	AirDropXlsx      string
-	AirDropXlsxTemp  string
 )
 
 type SubFaucet struct {
