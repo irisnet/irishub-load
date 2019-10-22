@@ -24,11 +24,9 @@ func AirDrop() *cobra.Command {
 明细查账：     https://www.irisplorer.io/#/txs/transfers
 查水龙头余额： https://www.irisplorer.io/#/address/iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93
 
-2. 把主网版本的data和config在home目录（/Users/sherlock/）下，改下config中空投的助记词
+2. 把主网版本的data和config在home目录（/Users/sherlock/）下，改下config中空投的助记词 strike-drop：
 
 3. 确保 iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93 有钱
-strike-drop：
-shelwin wang drop siege embark season rally primary bullet detect scrap toilet tank fine hire praise humor leader swim entire syrup brush scheme unusual display wrong
 
 4. 把create account删除了（lcd不支持key了），后续没有用了。实在要用可以考虑iks。
    助记词可以生成签名后的交易。 简单查账的话可以把水龙头的iaa在config里面事先写好。
