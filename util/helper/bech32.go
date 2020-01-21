@@ -4,9 +4,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ripemd160"
+	"log"
 	"strings"
 )
 
@@ -46,7 +46,7 @@ func ConvertFromHex(dst, hexStr string) string {
 
 	dstAddr, err := convertAndEncode(dst, bz)
 	if err != nil {
-		log.Printf("decoding hex address failed: must provide an valid bech32 address",)
+		log.Printf("decoding hex address failed: must provide an valid bech32 address")
 		return ""
 	}
 	return dstAddr

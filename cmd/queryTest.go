@@ -7,21 +7,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 func QueryTest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "querytest",
+		Use:     "querytest",
 		Example: "irishub-load querytest --config-dir=$HOME",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
-				//tx_info types.AccountInfoRes
-				//err         error
+			//tx_info types.AccountInfoRes
+			//err         error
 			)
 
 			fmt.Println("Start queryTest test!")
 			helper.ReadConfigFile(FlagConfDir)
-
 
 			//tx_info, err = account.GetTxInfo()
 

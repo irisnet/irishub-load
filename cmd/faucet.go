@@ -15,8 +15,8 @@ import (
 // 创建4个用户，并向他们分别转账测试所需的最低iris数量
 func FaucetInit() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                    "init",
-		Example:                "irishub-load init --config-dir=$HOME/config.json",
+		Use:     "init",
+		Example: "irishub-load init --config-dir=$HOME/config.json",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
 				err         error
@@ -40,10 +40,10 @@ func FaucetInit() *cobra.Command {
 
 			// 读取水龙头账户信息
 			if faucet_info, err = account.GetAccountInfo(faucet_add); err != nil {
-				fmt.Println("GetAccountInfo error !!!!"+err.Error())
+				fmt.Println("GetAccountInfo error !!!!" + err.Error())
 				return err
 			}
-			sequence, _ := helper.StrToInt(faucet_info.Value.Sequence)
+			sequence := faucet_info.Value.Sequence
 			fmt.Printf("No.2  Get faucet sequence : %d \n", sequence)
 
 			//判断faucet的余额是否大于5倍min-balance（测试所需单个账户的最小余额）
@@ -55,22 +55,22 @@ func FaucetInit() *cobra.Command {
 
 			//构造转账交易
 			req := types.TransferTxReq{
-				Amount:           conf.MinBalance,
-				ChainID:          conf.ChainId,
-				Sequence:         sequence,
-				SenderAddr:       conf.FaucetAddr,
-				SenderSeed:       conf.FaucetSeed,
-				Mode:             "commit=true",
+				Amount:     conf.MinBalance,
+				ChainID:    conf.ChainId,
+				Sequence:   sequence,
+				SenderAddr: conf.FaucetAddr,
+				SenderSeed: conf.FaucetSeed,
+				Mode:       "commit=true",
 			}
 
 			//分别给5个账户转账
-			fmt.Printf("No.3  Transfer balance : %s to 5 accounts \n",conf.MinBalance)
-			for _, subFaucet := range conf.SubFaucets{
+			fmt.Printf("No.3  Transfer balance : %s to 5 accounts \n", conf.MinBalance)
+			for _, subFaucet := range conf.SubFaucets {
 				if accInfo, err := account.GetAccountInfo(subFaucet.FaucetAddr); err == nil {
 
 					//判断余额是否充足，充足则不转账，continue
 					if balance, _ := account.ParseCoins(helper.IrisattoToIris(accInfo.Value.Coins)); balance >= minBalance {
-						fmt.Printf("Enough balance for %s, balance %f iris >= minBalance : %f iris \n", subFaucet.FaucetAddr,balance,minBalance)
+						fmt.Printf("Enough balance for %s, balance %f iris >= minBalance : %f iris \n", subFaucet.FaucetAddr, balance, minBalance)
 						continue
 					}
 				}
@@ -98,6 +98,3 @@ func FaucetInit() *cobra.Command {
 
 	return cmd
 }
-
-
-

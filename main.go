@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/irisnet/irishub-load/cmd"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -74,6 +74,3 @@ func bindFlagsLoadViper(rootCmd *cobra.Command) error {
 
 	return nil
 }
-
-
-

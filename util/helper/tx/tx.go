@@ -12,28 +12,28 @@ import (
 
 /////////////////////////////////////////
 
-func SendTx(req types.TransferTxReq)(types.TransferTxRes, error) {
+func SendTx(req types.TransferTxReq) (types.TransferTxRes, error) {
 	var (
-		err                   error
+		err              error
 		transferTxInfo   types.TransferTxRes
-		PrivateInfo		 types.AccountTestPrivateInfo
-		SignedDataString      string
+		PrivateInfo      types.AccountTestPrivateInfo
+		SignedDataString string
 
 		response []byte
 	)
 
-	if PrivateInfo, err = sign.InitAccountSignProcess(req.SenderAddr,req.SenderSeed); err!=nil {
+	if PrivateInfo, err = sign.InitAccountSignProcess(req.SenderAddr, req.SenderSeed); err != nil {
 		return transferTxInfo, fmt.Errorf("Get private info error : %s", err.Error())
 	}
 
-	if SignedDataString, err = sign.GenSingleSignTxByTend(req, PrivateInfo); err!=nil {
+	if SignedDataString, err = sign.GenSingleSignTxByTend(req, PrivateInfo); err != nil {
 		return transferTxInfo, fmt.Errorf("GenSignTx error : %s", err.Error())
 	}
 
 	//如果签名不通过 可以这里打印出来看下有没有问题 是不是chainid错了
 	//fmt.Println(SignedDataString)
 
-	if response, err = sign.BroadcastTx(SignedDataString, req.Mode); err!=nil {
+	if response, err = sign.BroadcastTx(SignedDataString, req.Mode); err != nil {
 		fmt.Println(string(response))
 		return transferTxInfo, fmt.Errorf("BroadcastTx error : %s", err.Error())
 	}
@@ -55,13 +55,12 @@ func CheckTx(tx string) error {
 
 	if statusCode == constants.StatusCodeOk {
 		if strings.Contains(string(resByte), "hash") && !strings.Contains(string(resByte), "failed") {
-			return  nil
+			return nil
 		}
 
-		return  fmt.Errorf(string(resByte))
+		return fmt.Errorf(string(resByte))
 	} else {
 		return fmt.Errorf("status code is not ok, code: %v", statusCode)
 	}
-
 
 }

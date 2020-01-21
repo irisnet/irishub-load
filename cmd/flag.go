@@ -5,17 +5,17 @@ import (
 )
 
 const (
-	FlagConfDir          = "config-dir"
+	FlagConfDir = "config-dir"
 
-	FlagTps              = "tps"
-	FlagDuration         = "duration"
-	FlagAccount          = "account"
+	FlagTps      = "tps"
+	FlagDuration = "duration"
+	FlagAccount  = "account"
 )
 
 var (
-	faucetInitSet            = pflag.NewFlagSet("", pflag.ContinueOnError)
-	signTXFlagSet            = pflag.NewFlagSet("", pflag.ContinueOnError)
-	broadcastTXFlagSet       = pflag.NewFlagSet("", pflag.ContinueOnError)
+	faucetInitSet      = pflag.NewFlagSet("", pflag.ContinueOnError)
+	signTXFlagSet      = pflag.NewFlagSet("", pflag.ContinueOnError)
+	broadcastTXFlagSet = pflag.NewFlagSet("", pflag.ContinueOnError)
 )
 
 func init() {

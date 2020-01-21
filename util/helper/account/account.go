@@ -7,8 +7,8 @@ import (
 	"github.com/irisnet/irishub-load/types"
 	"github.com/irisnet/irishub-load/util/constants"
 	"github.com/irisnet/irishub-load/util/helper"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // create key
@@ -54,22 +54,22 @@ func CreateAccount(name, password, seed string) (string, error) {
 // get account info
 func GetAccountInfo(address string) (types.AccountInfoRes, error) {
 	var (
-		accountInfo types.AccountInfoRes
+		resultInfo types.ResultInfoRes
 	)
 	uri := fmt.Sprintf(constants.UriAccountInfo, address)
 	statusCode, resByte, err := helper.HttpClientGetData(uri)
 
 	if err != nil {
-		return accountInfo, err
+		return resultInfo.Result, err
 	}
 
 	if statusCode == constants.StatusCodeOk {
-		if err := json.Unmarshal(resByte, &accountInfo); err != nil {
-			return accountInfo, err
+		if err := json.Unmarshal(resByte, &resultInfo); err != nil {
+			return resultInfo.Result, err
 		}
-		return accountInfo, nil
+		return resultInfo.Result, nil
 	} else {
-		return accountInfo, fmt.Errorf("status code is not ok, code: %v", statusCode)
+		return resultInfo.Result, fmt.Errorf("status code is not ok, code: %v", statusCode)
 	}
 }
 
@@ -81,8 +81,6 @@ func GetTxInfo() (types.AccountInfoRes, error) {
 	uri := fmt.Sprintf(constants.UriQueryTx, "action=send&search_request_page=1&search_request_size=1")
 
 	statusCode, resByte, err := helper.HttpClientGetData(uri)
-
-
 
 	if err != nil {
 		return accountInfo, err
@@ -100,7 +98,6 @@ func GetTxInfo() (types.AccountInfoRes, error) {
 	}
 }
 
-
 /////////////////////////////////////
 func ParseCoins(coin string) (float64, error) {
 	amtStr := strings.Replace(coin, constants.Denom, "", -1)
@@ -112,12 +109,11 @@ func ParseCoins(coin string) (float64, error) {
 	return amtFloat, nil
 }
 
-
-func RandomCoin(base string)(string, error){
+func RandomCoin(base string) (string, error) {
 	if strings.Contains(base, ".") {
 		return "", fmt.Errorf("RandomCoin error!")
 	}
 	amtStr := strings.Replace(base, constants.Denom, "."+helper.RandomId()+constants.Denom, -1)
 
-	return amtStr,nil
+	return amtStr, nil
 }
