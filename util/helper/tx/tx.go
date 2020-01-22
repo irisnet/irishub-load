@@ -33,7 +33,7 @@ func SendTx(req types.TransferTxReq) (types.TransferTxRes, error) {
 	//如果签名不通过 可以这里打印出来看下有没有问题 是不是chainid错了
 	//fmt.Println(SignedDataString)
 
-	if response, err = sign.BroadcastTx(SignedDataString, req.Mode); err != nil {
+	if response, err = sign.BroadcastTx(SignedDataString); err != nil {
 		fmt.Println(string(response))
 		return transferTxInfo, fmt.Errorf("BroadcastTx error : %s", err.Error())
 	}

@@ -258,28 +258,16 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 
 		//签名单条交易
 		tx := genSignedDataByTend(priv, sigMsg, accountPrivate, msgs, fee)
-		bz, _ := cdc.MarshalJSON(tx)
-		//var signedTx types.TxDataRes
-		//err = json.Unmarshal(bz, &signedTx)
-		//if err != nil {
-		//	log.Printf("%v: sign tx failed: %v\n", "SignByTend", err)
-		//	return nil, err
-		//}
-		//
-		//postTx := types.TxBroadcast{
-		//	Tx: signedTx.Value,
-		//}
-		//postTx.Tx.Msgs[0].Type = "cosmos-sdk/MsgSend"
-		//postTxBytes, err := json.Marshal(postTx)
-		////log.Printf("%s\n", postTxBytes)
-		//if err != nil {
-		//	log.Printf("%v: cdc marshal json fail: %v\n", "", err)
-		//	return nil, err
-		//}
+		bz, err := cdc.MarshalJSON(tx)
+		if err != nil {
+			log.Printf("%v: cdc marshal json fail: %v\n", "", err)
+			return nil, err
+		}
 
+		//头部替换tx，底部加block
 		txStr := string(bz)
 		txStr = strings.Replace(txStr, `"type":"cosmos-sdk/StdTx","value"`, `"tx"`, -1)
-		txStr = txStr[:len(txStr)-1] + `,"mode":"block"}`
+		txStr = txStr[:len(txStr)-1] + `,"mode":"sync"}`  //立即返回，block / sync / async
 
 		//把创建的签名后的交易逐条写入
 		signedData = append(signedData, txStr)
@@ -309,12 +297,13 @@ func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, acc
 	return tx
 }
 
-func BroadcastTx(txBody string, mode string) ([]byte, error) {
+//注意 mode string ,删掉了。
+func BroadcastTx(txBody string) ([]byte, error) {
 	reqBytes := []byte(txBody)
 
 	reqBuffer := bytes.NewBuffer(reqBytes)
 	//uri := constants.UriTxBroadcast +
-	uri := constants.UriTxBroadcast + "?" + mode
+	uri := constants.UriTxBroadcast
 	statusCode, resBytes, err := helper.HttpClientPostJsonData(uri, reqBuffer)
 
 	// handle response
@@ -325,14 +314,16 @@ func BroadcastTx(txBody string, mode string) ([]byte, error) {
 		return nil, fmt.Errorf("unexcepted status code: %v", statusCode)
 	}
 
-	if strings.Contains(string(resBytes), "invalid") {
-		log.Printf("%s\n", resBytes)
+	res := string(resBytes)
+
+	log.Printf("%s\n", res)
+
+	if strings.Contains(res, "invalid") {
+		log.Printf("%s\n", res)
 		return nil, fmt.Errorf("unexcepted information: %v", "invalid")
 	}
 
-	a := strings.Contains(string(resBytes), "check_tx") && strings.Contains(string(resBytes), "deliver_tx")
-	b := strings.Contains(string(resBytes), "hash") && strings.Contains(string(resBytes), "height")
-	if a && b {
+	if strings.Contains(res, "txhash") && strings.Contains(res, "height") {
 		return resBytes, nil
 	} else {
 		log.Printf("check_tx check broadcast information failed\n")
@@ -341,59 +332,4 @@ func BroadcastTx(txBody string, mode string) ([]byte, error) {
 }
 
 // tx example:
-/*{
-  "tx": {
-    "msg": [
-      {
-        "type": "irishub/bank/Send",
-        "value": {
-          "inputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "fee": {
-      "amount": [
-        {
-          "denom": "iris-atto",
-          "amount": "5000000000000000000"
-        }
-      ],
-      "gas": "20000"
-    },
-    "signatures": [
-      {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"
-        },
-        "signature": "lCgkVUMEWRWzg36i8TDYqR2yJTyE/VV1CJlet//LEeweF2WcqkN9oEXxcPMonCSSRPWu30+dey8a07VIEmRppA==",
-        "account_number": "3",
-        "sequence": "3"
-      }
-    ],
-    "memo": ""
-  }
-}
-
-*/
+//{"tx":{"msg":[{"type":"cosmos-sdk/MsgSend","value":{"from_address":"faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju","to_address":"faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju","amount":[{"denom":"stake","amount":"1"}]}}],"fee":{"amount":[{"denom":"stake","amount":"4"}],"gas":"100000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"},"signature":"A9S9weLmfyIBtJ8SKSKgxPXXHp7TugZ0u4fdYeAUb/xM2wHdn7vM/UkaKGzSZydQUbLg2kw0POfJVphNi1n4Rg=="}],"memo":""},"mode":"block"}

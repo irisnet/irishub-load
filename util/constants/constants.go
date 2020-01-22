@@ -10,7 +10,7 @@ const (
 	UriTransfer    = "/bank/accounts/%s/send" // format is /bank/accounts/{address}/transfers
 	//UriTxs           = "/txs?action=send&sender=%s&recipient=%s"
 	UriTxs         = "/txs/%s"
-	UriTxBroadcast = "/tx/broadcast"
+	UriTxBroadcast = "/txs"
 	UriQueryTx     = "/txs?%s" //  txs?action=send&search_request_page=1&search_request_size=1
 
 	// http status code

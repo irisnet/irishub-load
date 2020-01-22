@@ -130,14 +130,14 @@ func BroadcastTx() *cobra.Command {
 			//逐条广播交易，sc.Scan()默认以 \n 分隔
 			for sc.Scan() {
 				count++
-				_, err = sign.BroadcastTx(sc.Text(), "async=true")
+				_, err = sign.BroadcastTx(sc.Text())
 
 				//如果遇到网络拥堵（lcd返回500）
 				//则每隔半秒检查一次，直至网络恢复
 				if err != nil {
 					for {
 						time.Sleep(time.Millisecond * 500)
-						_, err = sign.BroadcastTx(sc.Text(), "async=true")
+						_, err = sign.BroadcastTx(sc.Text())
 						if err == nil {
 							break
 						}
