@@ -267,7 +267,7 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 		//头部替换tx，底部加block
 		txStr := string(bz)
 		txStr = strings.Replace(txStr, `"type":"cosmos-sdk/StdTx","value"`, `"tx"`, -1)
-		txStr = txStr[:len(txStr)-1] + `,"mode":"sync"}`  //立即返回，block / sync / async
+		txStr = txStr[:len(txStr)-1] + `,"mode":"async"}`  //立即返回，block / sync / async
 
 		//把创建的签名后的交易逐条写入
 		signedData = append(signedData, txStr)
@@ -316,7 +316,8 @@ func BroadcastTx(txBody string) ([]byte, error) {
 
 	res := string(resBytes)
 
-	log.Printf("%s\n", res)
+	// 打印hash
+	// log.Printf("%s\n", res)
 
 	if strings.Contains(res, "invalid") {
 		log.Printf("%s\n", res)

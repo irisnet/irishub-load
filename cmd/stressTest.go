@@ -51,7 +51,7 @@ func SignTx() *cobra.Command {
 			log.SetFlags(log.Ldate | log.Lmicroseconds)
 			log.Printf("Start signing %d TXs, chain id: %s, Node : %s, sub_faucet : %s \n", totalTxNum, conf.ChainId, conf.NodeUrl, conf.SubFaucets[subFaucetIndex].FaucetAddr)
 
-			//用助记词恢复账户，并读取私钥，sequence id，account number
+			//用助记词恢复账户，并读取私钥，sequence id，account number（输入地址和助记词，返回info）
 			if PrivateInfo, err = sign.InitAccountSignProcess(conf.SubFaucets[subFaucetIndex].FaucetAddr, conf.SubFaucets[subFaucetIndex].Seed); err != nil {
 				return fmt.Errorf("Get private info error : %s", err.Error())
 			}
@@ -129,6 +129,10 @@ func BroadcastTx() *cobra.Command {
 
 			//逐条广播交易，sc.Scan()默认以 \n 分隔
 			for sc.Scan() {
+				//if (count == 2){
+				//	break
+				//}
+
 				count++
 				_, err = sign.BroadcastTx(sc.Text())
 
