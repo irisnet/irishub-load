@@ -47,7 +47,8 @@ func FaucetInit() *cobra.Command {
 			fmt.Printf("No.2  Get faucet sequence : %d \n", sequence)
 
 			//判断faucet的余额是否大于5倍min-balance（测试所需单个账户的最小余额）
-			faucetBalance, _ := account.ParseCoins(helper.IrisattoToIris(faucet_info.Value.Coins))
+			//helper.IrisattoToIris(faucet_info.Value.Coins)
+			faucetBalance, _ := account.ParseCoins("")
 			minBalance, _ := account.ParseCoins(conf.MinBalance)
 			if faucetBalance < minBalance*5 {
 				return fmt.Errorf("Faucet balance = %f iris,  not enough balance for stress test! \n", faucetBalance)
@@ -57,7 +58,7 @@ func FaucetInit() *cobra.Command {
 			req := types.TransferTxReq{
 				Amount:     conf.MinBalance,
 				ChainID:    conf.ChainId,
-				Sequence:   sequence,
+				Sequence:   1,//sequence,
 				SenderAddr: conf.FaucetAddr,
 				SenderSeed: conf.FaucetSeed,
 				Mode:       "commit=true",
@@ -66,10 +67,12 @@ func FaucetInit() *cobra.Command {
 			//分别给5个账户转账
 			fmt.Printf("No.3  Transfer balance : %s to 5 accounts \n", conf.MinBalance)
 			for _, subFaucet := range conf.SubFaucets {
-				if accInfo, err := account.GetAccountInfo(subFaucet.FaucetAddr); err == nil {
+				//accInfo
+				if _, err := account.GetAccountInfo(subFaucet.FaucetAddr); err == nil {
 
 					//判断余额是否充足，充足则不转账，continue
-					if balance, _ := account.ParseCoins(helper.IrisattoToIris(accInfo.Value.Coins)); balance >= minBalance {
+					//helper.IrisattoToIris(accInfo.Value.Coins)
+					if balance, _ := account.ParseCoins(""); balance >= minBalance {
 						fmt.Printf("Enough balance for %s, balance %f iris >= minBalance : %f iris \n", subFaucet.FaucetAddr, balance, minBalance)
 						continue
 					}

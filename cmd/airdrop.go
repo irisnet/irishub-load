@@ -67,14 +67,15 @@ func AirDrop() *cobra.Command {
 			req := types.TransferTxReq{
 				Amount:     conf.AirDropAmount, //如果不是固定值，后面会重新赋值
 				ChainID:    conf.AirDropChainId,
-				Sequence:   sequence,
+				Sequence:   1,//sequence,
 				SenderAddr: conf.AirDropAddr,
 				SenderSeed: conf.AirDropSeed,
 				Mode:       "", //调试的时候可以用 "commit=true",
 			}
 
 			//判断余额
-			faucetBalance, _ := account.ParseCoins(helper.IrisattoToIris(faucet_info.Value.Coins))
+			//faucetBalance, _ := account.ParseCoins(helper.IrisattoToIris(faucet_info.Value.Coins))
+			faucetBalance, _ := account.ParseCoins("")
 			minBalance, _ := account.ParseCoins(conf.AirDropAmount)
 			minBalance = minBalance + 10
 			if faucetBalance < minBalance {

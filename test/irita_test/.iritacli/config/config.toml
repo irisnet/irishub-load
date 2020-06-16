@@ -1,4 +1,0 @@
-broadcast-mode = "block"
-chain-id = "test"
-output = "json"
-trust-node = true

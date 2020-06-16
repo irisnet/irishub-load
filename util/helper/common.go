@@ -104,7 +104,7 @@ func PraseUser(name string) int {
 
 func ReadConfigFile(dir string) error {
 	confDir := viper.GetString(dir)
-	viper.SetConfigName("config") // config.json
+	viper.SetConfigName("config_csrb") // config.json
 	viper.AddConfigPath(confDir)  // $HOME
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err.Error())

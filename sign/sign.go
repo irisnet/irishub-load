@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-load/types"
@@ -18,7 +19,7 @@ import (
 
 	"encoding/json"
 	"errors"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/irisnet/irishub-load/util/helper/account"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
@@ -27,7 +28,7 @@ import (
 
 func init() {
 	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount("faa", "fap")
+	config.SetBech32PrefixForAccount("csrb", "pub")
 	config.Seal()
 }
 
@@ -39,7 +40,7 @@ const (
 	amtV          = "1"
 	feeForTestnet = "4"                  //这个估计是测试网压力测试用的fee
 	feeForMainnet = "200000000000000000" //主网空投用这个fee
-	denom         = "stake"
+	denom         = "point"
 	gas           = uint64(100000)
 	memo          = ""
 
@@ -87,19 +88,23 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 
 	//获取sequence id，accountNumber 写入返回的数据结构
 	acc, err := account.GetAccountInfo(fromAddr)
-	sequence := acc.Value.Sequence
 	if err != nil {
 		return Account, err
 	}
-	accountNumber := acc.Value.AccountNumber
-	if err != nil {
-		return Account, err
+	accountNumber,err_atoi:=strconv.Atoi(acc.Value.AccountNumber)
+	if err_atoi != nil {
+		accountNumber=0
+	}
+	sequence,err_atoi:=strconv.Atoi(acc.Value.Sequence)
+	if err_atoi != nil {
+		sequence = 0
 	}
 
 	Account.PrivateKey = derivedPriv
 	Account.PubKey = pubk.Bytes()
 	Account.Addr = fromAddr
 	Account.AccountNumber = uint64(accountNumber)
+	Account.Sequence = uint64(sequence)
 	Account.Sequence = uint64(sequence)
 	return Account, err
 }
@@ -162,7 +167,7 @@ func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.Account
 	sigMsg := StdSignMsg{
 		ChainID:       req.ChainID,
 		AccountNumber: accountPrivate.AccountNumber,
-		Sequence:      uint64(req.Sequence),
+		Sequence:      1,//uint64(req.Sequence),
 		Memo:          "",
 		Msgs:          msgs,
 		Fee:           fee,
@@ -266,7 +271,7 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 
 		//头部替换tx，底部加block
 		txStr := string(bz)
-		txStr = strings.Replace(txStr, `"type":"cosmos-sdk/StdTx","value"`, `"tx"`, -1)
+		txStr = strings.Replace(txStr, `"type":"cosmos-sdk/StdTx","value"`, `"tx"`, -1) //注意这些内容用lcd广播时候要用的
 		txStr = txStr[:len(txStr)-1] + `,"mode":"async"}`  //立即返回，block / sync / async
 
 		//把创建的签名后的交易逐条写入
@@ -288,7 +293,7 @@ func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, acc
 		return auth.StdTx{}
 	}
 	sig := auth.StdSignature{
-		PubKey:    priv.PubKey(),
+		PubKey:    priv.PubKey().Bytes(),
 		Signature: sigByte,
 	}
 

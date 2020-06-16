@@ -34,10 +34,9 @@ type ResultInfoRes struct {
 
 type AccountInfoValue struct {
 	Address       string `json:"address"`
-	Coins         []Coin `json:"coins"`
 	PublicKey     string `json:"public_key"`
-	AccountNumber int    `json:"account_number"`
-	Sequence      int    `json:"sequence"`
+	AccountNumber string    `json:"account_number"`
+	Sequence      string    `json:"sequence"`
 }
 
 ////////////////////////////////////////////////////
