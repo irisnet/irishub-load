@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/irisnet/irishub-load/cmd"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -30,6 +30,8 @@ func main() {
 		//其他feature，和压测无关
 		cmd.AirDrop(),
 		cmd.SeedTest(),
+		cmd.RandTest(),
+		cmd.QueryTest(),
 	)
 
 	//PreRun bind viper
@@ -72,6 +74,3 @@ func bindFlagsLoadViper(rootCmd *cobra.Command) error {
 
 	return nil
 }
-
-
-

@@ -5,18 +5,16 @@ var (
 	ChainId string
 	Output  string
 
-	FaucetSeed    string
-	MinBalance    string
-	SubFaucets    []SubFaucet
+	FaucetAddr string
+	FaucetSeed string
+	MinBalance string
+	SubFaucets []SubFaucet
 
-	AirDropSeed   string
-	AirDropGas    string
-	AirDropFee    string
-	AirDropAmount string
-	AirDropRandom bool
-	AirDropXlsx   string
-	AirDropXlsxTemp   string
-	AirDropRecord   string
+	AirDropChainId string
+	AirDropAddr    string
+	AirDropSeed    string
+	AirDropAmount  string
+	AirDropXlsx    string
 )
 
 type SubFaucet struct {
@@ -25,4 +23,3 @@ type SubFaucet struct {
 	FaucetAddr     string `json:"faucet_addr" mapstructure:"faucet_addr"`
 	Seed           string `json:"seed" mapstructure:"seed"`
 }
-

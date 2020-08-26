@@ -2,6 +2,7 @@
 	"ChainId": "shilei-qa",
 	"Node":    "http://localhost:1317",
 	"Output":  "$HOME",
+	"FaucetAddr":  "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
 	"FaucetSeed":  "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
 	"MinBalance": "500000iris",
 	"SubFaucets": [
@@ -37,10 +38,11 @@
 		}
 	],
 
-	"AirDropSeed":    "caught below output final blast sun elevator labor regular palm dizzy stand arctic judge cost typical confirm people dust panic still aspect sword save",
-	"AirDropGas":     "50000",
-	"AirDropFee":     "0.3iris",
-	"AirDropAmount":  "20iris",
-	"AirDropXlsx":    "/Users/sherlock/data.xlsx",
-	"AirDropXlsxTemp":    "/Users/sherlock/temp.xlsx"
+
+
+	"AirDropChainId": "irishub",
+	"AirDropAddr":  "iaa13nzsae74qype65rshc0wyvhk9s0l3uecwf8y93",
+	"AirDropSeed":  "",
+	"AirDropAmount":  "0.01iris",
+	"AirDropXlsx":    "/Users/sherlock/data.xlsx"
 }

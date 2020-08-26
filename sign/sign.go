@@ -3,40 +3,49 @@ package sign
 import (
 	"bytes"
 	"fmt"
-	"github.com/irisnet/irishub/codec"
-	"github.com/irisnet/irishub/modules/auth"
-	"github.com/irisnet/irishub/modules/bank"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	"strconv"
 
-	sdk "github.com/irisnet/irishub/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/irisnet/irishub-load/types"
 	"github.com/irisnet/irishub-load/util/constants"
 	"github.com/irisnet/irishub-load/util/helper"
-	"github.com/irisnet/irishub-load/types"
 
+	. "github.com/irisnet/irishub-load/conf"
 	"log"
 	"strings"
-	"strconv"
-	. "github.com/irisnet/irishub-load/conf"
 
-
-	"github.com/tyler-smith/go-bip39"
-	"github.com/irisnet/irishub/crypto/keys/hd"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/irisnet/irishub-load/util/helper/account"
 	"encoding/json"
 	"errors"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/irisnet/irishub-load/util/helper/account"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
+	"github.com/tyler-smith/go-bip39"
 )
+
+func init() {
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount("csrb", "pub")
+	config.Seal()
+}
 
 var (
 	Cdc *codec.Codec
 )
 
 const (
-	amtV    = "1000000000000000"
-	feeAmtV = "5000000000000000000"
-	denom   = "iris-atto"
-	gas     = uint64(20000)
-	memo    = ""
+	amtV          = "1"
+	feeForTestnet = "4"                  //这个估计是测试网压力测试用的fee
+	feeForMainnet = "200000000000000000" //主网空投用这个fee
+	denom         = "point"
+	gas           = uint64(100000)
+	memo          = ""
+
+	BIP44Prefix        = "44'/118'/"
+	FullFundraiserPath = BIP44Prefix + "0'/0/0"
 )
 
 type StdSignMsg struct {
@@ -70,7 +79,7 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 		return Account, err
 	}
 	masterPriv, ch := hd.ComputeMastersFromSeed(seed)
-	derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hd.FullFundraiserPath)
+	derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, FullFundraiserPath)
 	if err != nil {
 		return Account, err
 	}
@@ -79,13 +88,16 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 
 	//获取sequence id，accountNumber 写入返回的数据结构
 	acc, err := account.GetAccountInfo(fromAddr)
-	sequence, err := strconv.Atoi(acc.Value.Sequence)
 	if err != nil {
 		return Account, err
 	}
-	accountNumber, err := strconv.Atoi(acc.Value.AccountNumber)
-	if err != nil {
-		return Account, err
+	accountNumber,err_atoi:=strconv.Atoi(acc.Value.AccountNumber)
+	if err_atoi != nil {
+		accountNumber=0
+	}
+	sequence,err_atoi:=strconv.Atoi(acc.Value.Sequence)
+	if err_atoi != nil {
+		sequence = 0
 	}
 
 	Account.PrivateKey = derivedPriv
@@ -93,67 +105,99 @@ func InitAccountSignProcess(fromAddr string, mnemonic string) (types.AccountTest
 	Account.Addr = fromAddr
 	Account.AccountNumber = uint64(accountNumber)
 	Account.Sequence = uint64(sequence)
+	Account.Sequence = uint64(sequence)
 	return Account, err
 }
 
-// tx example:
-/*{
-  "tx": {
-    "msg": [
-      {
-        "type": "irishub/bank/Send",
-        "value": {
-          "inputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "address": "faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju",
-              "coins": [
-                {
-                  "denom": "iris-atto",
-                  "amount": "1000000000000000"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "fee": {
-      "amount": [
-        {
-          "denom": "iris-atto",
-          "amount": "5000000000000000000"
-        }
-      ],
-      "gas": "20000"
-    },
-    "signatures": [
-      {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"
-        },
-        "signature": "lCgkVUMEWRWzg36i8TDYqR2yJTyE/VV1CJlet//LEeweF2WcqkN9oEXxcPMonCSSRPWu30+dey8a07VIEmRppA==",
-        "account_number": "3",
-        "sequence": "3"
-      }
-    ],
-    "memo": ""
-  }
+//空投
+func GenSingleSignTxByTend(req types.TransferTxReq, accountPrivate types.AccountTestPrivateInfo) (string, error) {
+	cdc := codec.New()
+	auth.RegisterCodec(cdc)
+	bank.RegisterCodec(cdc)
+
+	cdc.RegisterInterface((*crypto.PubKey)(nil), nil)
+	cdc.RegisterConcrete(secp256k1.PubKeySecp256k1{},
+		"tendermint/PubKeySecp256k1", nil)
+
+	cdc.RegisterInterface((*sdk.Msg)(nil), nil)
+	cdc.RegisterInterface((*sdk.Tx)(nil), nil)
+
+	//if (accountPrivate.Addr[:3] == "iaa"){
+	//	sdk.SetNetworkType("mainnet")
+	//} else {
+	//	//注意这里没有测试过
+	//	sdk.SetNetworkType("testnet")
+	//}
+
+	from, err := sdk.AccAddressFromBech32(accountPrivate.Addr)
+
+	if err != nil {
+		return "", errors.New("err in address to String")
+	}
+
+	coins := helper.IrisToIrisatto(req.Amount)
+
+	//构造转账的结构
+
+	//构造fee
+	feea, ok := sdk.NewIntFromString(feeForMainnet)
+	feeAmt := sdk.Coins{{Denom: denom, Amount: feea}}
+	if !ok {
+		return "", errors.New("err in String to int")
+	}
+	var msgs []sdk.Msg
+
+	fee := auth.StdFee{Amount: feeAmt, Gas: gas}
+
+	priv := secp256k1.PrivKeySecp256k1(accountPrivate.PrivateKey)
+
+	to, err := sdk.AccAddressFromBech32(req.RecipientAddr)
+
+	if err != nil {
+		return "", errors.New("err 2 in address to String")
+	}
+
+	//构造"msg"
+	msgs = []sdk.Msg{bank.MsgSend{
+		FromAddress: from,
+		ToAddress:   to,
+		Amount:      coins,
+	}}
+
+	sigMsg := StdSignMsg{
+		ChainID:       req.ChainID,
+		AccountNumber: accountPrivate.AccountNumber,
+		Sequence:      1,//uint64(req.Sequence),
+		Memo:          "",
+		Msgs:          msgs,
+		Fee:           fee,
+	}
+
+	//签名单条交易
+	tx := genSignedDataByTend(priv, sigMsg, accountPrivate, msgs, fee)
+	bz, _ := cdc.MarshalJSON(tx)
+	var signedTx types.TxDataRes
+	err = json.Unmarshal(bz, &signedTx)
+	if err != nil {
+		log.Printf("%v: sign tx failed: %v\n", "SignByTend", err)
+		return "", err
+	}
+
+	postTx := types.TxBroadcast{
+		Tx: signedTx.Value,
+	}
+	postTx.Tx.Msgs[0].Type = "irishub/bank/Send"
+	postTxBytes, err := json.Marshal(postTx)
+	//log.Printf("%s\n", postTxBytes)
+	if err != nil {
+		log.Printf("%v: cdc marshal json fail: %v\n", "", err)
+		return "", err
+	}
+
+	return string(postTxBytes), nil
 }
 
-*/
-
+//压测
 func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []SubFaucet, accountPrivate types.AccountTestPrivateInfo) ([]string, error) {
 
 	cdc := codec.New()
@@ -172,15 +216,14 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 	if err != nil {
 		return nil, errors.New("err in address to String")
 	}
-	//每个交易转账1000000000000000iris-atto = 0.001iris
+	//每个交易转账1stake
 	amount, ok := sdk.NewIntFromString(amtV)
 	coins := sdk.Coins{{Denom: denom, Amount: amount}}
 
 	//构造转账的结构
-	input := bank.Input{Address: from, Coins: coins}
 
 	//构造fee
-	feea, ok := sdk.NewIntFromString(feeAmtV)
+	feea, ok := sdk.NewIntFromString(feeForTestnet)
 	feeAmt := sdk.Coins{{Denom: denom, Amount: feea}}
 	if !ok {
 		return nil, errors.New("err in String to int")
@@ -202,11 +245,11 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 		if err != nil {
 			return nil, errors.New("err 2 in address to String")
 		}
-		output := bank.Output{Address: to, Coins: coins}
 		//构造"msg"
 		msgs = []sdk.Msg{bank.MsgSend{
-			Inputs:  []bank.Input{input},
-			Outputs: []bank.Output{output},
+			FromAddress: from,
+			ToAddress:   to,
+			Amount:      coins,
 		}}
 
 		sigMsg := StdSignMsg{
@@ -220,27 +263,19 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 
 		//签名单条交易
 		tx := genSignedDataByTend(priv, sigMsg, accountPrivate, msgs, fee)
-		bz, _ := cdc.MarshalJSON(tx)
-		var signedTx types.TxDataRes
-		err = json.Unmarshal(bz, &signedTx)
-		if err != nil {
-			log.Printf("%v: sign tx failed: %v\n", "SignByTend", err)
-			return nil, err
-		}
-
-		postTx := types.TxBroadcast{
-			Tx: signedTx.Value,
-		}
-		postTx.Tx.Msgs[0].Type = "irishub/bank/Send"
-		postTxBytes, err := json.Marshal(postTx)
-		//log.Printf("%s\n", postTxBytes)
+		bz, err := cdc.MarshalJSON(tx)
 		if err != nil {
 			log.Printf("%v: cdc marshal json fail: %v\n", "", err)
 			return nil, err
 		}
 
+		//头部替换tx，底部加block
+		txStr := string(bz)
+		txStr = strings.Replace(txStr, `"type":"cosmos-sdk/StdTx","value"`, `"tx"`, -1) //注意这些内容用lcd广播时候要用的
+		txStr = txStr[:len(txStr)-1] + `,"mode":"async"}`  //立即返回，block / sync / async
+
 		//把创建的签名后的交易逐条写入
-		signedData = append(signedData, string(postTxBytes))
+		signedData = append(signedData, txStr)
 		sequence = sequence + 1
 		counter = counter + 1
 		if counter == len(subFaucets) {
@@ -250,17 +285,16 @@ func GenSignTxByTend(testNum int, fromIndex int, chainId string, subFaucets []Su
 	return signedData, nil
 }
 
-func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, accountPrivate types.AccountTestPrivateInfo, msgs []sdk.Msg, fee auth.StdFee) (auth.StdTx) {
+//空投和压测中分别调用
+func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, accountPrivate types.AccountTestPrivateInfo, msgs []sdk.Msg, fee auth.StdFee) auth.StdTx {
 	sigBz := sigMsg.Bytes()
 	sigByte, err := priv.Sign(sigBz)
 	if err != nil {
 		return auth.StdTx{}
 	}
 	sig := auth.StdSignature{
-		PubKey:        priv.PubKey(),
-		Signature:     sigByte,
-		AccountNumber: accountPrivate.AccountNumber,
-		Sequence:      sigMsg.Sequence,
+		PubKey:    priv.PubKey().Bytes(),
+		Signature: sigByte,
 	}
 
 	sigs := []auth.StdSignature{sig}
@@ -268,11 +302,13 @@ func genSignedDataByTend(priv secp256k1.PrivKeySecp256k1, sigMsg StdSignMsg, acc
 	return tx
 }
 
+//注意 mode string ,删掉了。
 func BroadcastTx(txBody string) ([]byte, error) {
 	reqBytes := []byte(txBody)
 
 	reqBuffer := bytes.NewBuffer(reqBytes)
-	uri := constants.UriTxBroadcast + "?async=true"
+	//uri := constants.UriTxBroadcast +
+	uri := constants.UriTxBroadcast
 	statusCode, resBytes, err := helper.HttpClientPostJsonData(uri, reqBuffer)
 
 	// handle response
@@ -283,14 +319,17 @@ func BroadcastTx(txBody string) ([]byte, error) {
 		return nil, fmt.Errorf("unexcepted status code: %v", statusCode)
 	}
 
-	if strings.Contains(string(resBytes), "invalid") {
-		log.Printf("%s\n", resBytes)
+	res := string(resBytes)
+
+	// 打印hash
+	// log.Printf("%s\n", res)
+
+	if strings.Contains(res, "invalid") {
+		log.Printf("%s\n", res)
 		return nil, fmt.Errorf("unexcepted information: %v", "invalid")
 	}
 
-	a := strings.Contains(string(resBytes), "check_tx") && strings.Contains(string(resBytes), "deliver_tx")
-	b := strings.Contains(string(resBytes), "hash") && strings.Contains(string(resBytes), "height")
-	if a && b {
+	if strings.Contains(res, "txhash") && strings.Contains(res, "height") {
 		return resBytes, nil
 	} else {
 		log.Printf("check_tx check broadcast information failed\n")
@@ -298,3 +337,5 @@ func BroadcastTx(txBody string) ([]byte, error) {
 	}
 }
 
+// tx example:
+//{"tx":{"msg":[{"type":"cosmos-sdk/MsgSend","value":{"from_address":"faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju","to_address":"faa1lcuw6ewd2gfxap37sejewmta205sgssmv5fnju","amount":[{"denom":"stake","amount":"1"}]}}],"fee":{"amount":[{"denom":"stake","amount":"4"}],"gas":"100000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AkQeeR40fJhMFkBmh8e/+jcOGYvMOO50YE4trqzaSJ5v"},"signature":"A9S9weLmfyIBtJ8SKSKgxPXXHp7TugZ0u4fdYeAUb/xM2wHdn7vM/UkaKGzSZydQUbLg2kw0POfJVphNi1n4Rg=="}],"memo":""},"mode":"block"}

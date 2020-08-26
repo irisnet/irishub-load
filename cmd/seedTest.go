@@ -1,42 +1,43 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/irisnet/irishub-load/util/helper"
-	"github.com/tyler-smith/go-bip39"
-	"github.com/irisnet/irishub/crypto/keys/hd"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"strings"
-	"encoding/hex"
-	"fmt"
-	"os"
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/irisnet/irishub-load/util/helper"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
+	"github.com/tyler-smith/go-bip39"
+	"os"
+	"strings"
 )
 
 type SeedAccountInfo struct {
-	PrivateKey    string
-	PubKey        string
-	Addr          string
+	PrivateKey string
+	PubKey     string
+	Addr       string
 }
 
 type InputAccountInfo struct {
-	Address        string      `json:"address"`
-	Secret         string      `json:"phrase"`
-	PrivateKey     string      `json:"privateKey"`
-	PublicKey      string      `json:"publicKey"`
+	Address    string `json:"address"`
+	Secret     string `json:"phrase"`
+	PrivateKey string `json:"privateKey"`
+	PublicKey  string `json:"publicKey"`
 }
 
 func SeedTest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "seedtest",
+		Use:     "seedtest",
 		Example: "irishub-load seedtest",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			var (
-				err                   error
-				inputInfo             InputAccountInfo
-				seedInfo			  SeedAccountInfo
+				err       error
+				inputInfo InputAccountInfo
+				seedInfo  SeedAccountInfo
 			)
 
 			file, err := os.OpenFile("D:/seedtest.txt", os.O_RDONLY, 0)
@@ -54,16 +55,16 @@ func SeedTest() *cobra.Command {
 				js := sc.Text()
 				err = json.Unmarshal([]byte(js), &inputInfo)
 				if err != nil {
-					return fmt.Errorf("can't prase input json\n %s",err.Error())
+					return fmt.Errorf("can't prase input json\n %s", err.Error())
 				}
 
-				if seedInfo, err = GetAccountInfoFromSeed(inputInfo.Secret); err!=nil {
+				if seedInfo, err = GetAccountInfoFromSeed(inputInfo.Secret); err != nil {
 					return fmt.Errorf("Get seedInfo info error : %s", err.Error())
 				}
 
 				count++
-				fmt.Println("Compare " , count , " seeds!")
-				if  err = CompareData(inputInfo, seedInfo); err!=nil {
+				fmt.Println("Compare ", count, " seeds!")
+				if err = CompareData(inputInfo, seedInfo); err != nil {
 					//return fmt.Errorf("Result not equal : %s", err.Error())
 					error_count++
 				}
@@ -80,7 +81,7 @@ func SeedTest() *cobra.Command {
 func CompareData(inputInfo InputAccountInfo, seedInfo SeedAccountInfo) error {
 	if inputInfo.PrivateKey != seedInfo.PrivateKey {
 		fmt.Println(inputInfo.Secret)
-		fmt.Println(inputInfo.PrivateKey , " != " , seedInfo.PrivateKey)
+		fmt.Println(inputInfo.PrivateKey, " != ", seedInfo.PrivateKey)
 		return errors.New("PrivateKey not equal")
 	}
 
@@ -103,7 +104,7 @@ func GetAccountInfoFromSeed(mnemonic string) (SeedAccountInfo, error) {
 		return account, err
 	}
 	masterPriv, ch := hd.ComputeMastersFromSeed(seed)
-	derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hd.FullFundraiserPath)
+	derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, types.FullFundraiserPath)
 	if err != nil {
 		return account, err
 	}
@@ -115,4 +116,3 @@ func GetAccountInfoFromSeed(mnemonic string) (SeedAccountInfo, error) {
 
 	return account, err
 }
-

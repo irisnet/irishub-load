@@ -1,18 +1,13 @@
 package types
 
 import (
-	"github.com/irisnet/irishub/types"
+	"github.com/cosmos/cosmos-sdk/types"
 )
 
 ////////////////////////////////////////////////////
-type PublicKey struct {
-	Type   string `json:"type"`
-	Value  string `json:"value"`
-}
-
 type Coin struct {
-	Denom   string `json:"denom"`
-	Amount  string `json:"amount"`
+	Denom  string `json:"denom"`
+	Amount string `json:"amount"`
 }
 
 ////////////////////////////////////////////////////
@@ -32,32 +27,35 @@ type AccountInfoRes struct {
 	Value AccountInfoValue `json:"value"`
 }
 
+type ResultInfoRes struct {
+	Height string         `json:"height"`
+	Result AccountInfoRes `json:"result"`
+}
+
 type AccountInfoValue struct {
-	Address       string   `json:"address"`
-	Coins         []Coin    `json:"coins"`
-	PublicKey     PublicKey   `json:"public_key"`
-	AccountNumber string   `json:"account_number"`
-	Sequence      string   `json:"sequence"`
+	Address       string `json:"address"`
+	PublicKey     string `json:"public_key"`
+	AccountNumber string    `json:"account_number"`
+	Sequence      string    `json:"sequence"`
 }
 
 ////////////////////////////////////////////////////
 
 type AirDropInfo struct {
-	Pos                   int
-	Address               string
-	Status                string
-	Hash                  string
-	TransactionTime       string
-	Amount                string
+	Pos     int
+	Address string
+	Status  string
+	Hash    string
+	Amount  string
 }
 
 ////////////////////////////////////////////////////
 
 type TransferTxRes struct {
-	Check_tx   CheckTx `json:"check_tx"`
+	Check_tx   CheckTx   `json:"check_tx"`
 	Deliver_tx DeliverTx `json:"deliver_tx"`
-	Hash       string `json:"hash"`
-	Height     string `json:"height"`
+	Hash       string    `json:"hash"`
+	Height     string    `json:"height"`
 }
 
 type CheckTx struct {
@@ -66,27 +64,28 @@ type CheckTx struct {
 }
 
 type DeliverTx struct {
-	Log         string `json:"log"`
-	GasWanted   string `json:"gasWanted"`
-	GasUsed    string `json:"gasUsed"`
-	Tags       []Tag `json:"tags"`
+	Log       string `json:"log"`
+	GasWanted string `json:"gasWanted"`
+	GasUsed   string `json:"gasUsed"`
+	Tags      []Tag  `json:"tags"`
 }
 
 type Tag struct {
-	Key         string `json:"key"`
-	Value      string `json:"value"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
-
 
 ////////////////////////////////////////////////////
 
 type TransferTxReq struct {
-	Amount string `json:"amount"`
-	Recipient string `json:"recipient"`
-	BaseTx BaseTx `json:"base_tx"`
+	Amount        string
+	ChainID       string
+	Sequence      int
+	SenderAddr    string
+	SenderSeed    string
+	RecipientAddr string
+	Mode          string
 }
-
-
 
 type BaseTx struct {
 	LocalAccountName string `json:"name"`
@@ -177,5 +176,3 @@ type AccountTestPrivateInfo struct {
 	AccountNumber uint64
 	Sequence      uint64
 }
-
-
